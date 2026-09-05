@@ -91,17 +91,51 @@ const progress = document.getElementById("progress");
 let lastScroll = 0;
 let scrollVelocity = 0;
 
-addEventListener("scroll", () => {
-  const y = scrollY;
-  const max = document.body.scrollHeight - innerHeight;
-  progress.style.transform = `scaleX(${max > 0 ? y / max : 0})`;
+// Reading scrollHeight inside the scroll handler forced a full layout on every
+// single scroll event. It only changes when the page does, so it is measured
+// once and refreshed on resize.
+let scrollMax = 0;
+const measureScroll = () => {
+  scrollMax = document.documentElement.scrollHeight - innerHeight;
+};
+measureScroll();
+addEventListener("resize", measureScroll, { passive: true });
+addEventListener("load", measureScroll, { once: true });
 
-  nav.classList.toggle("is-scrolled", y > 20);
+let navScrolled = false;
+let navHidden = false;
+let scrollQueued = false;
+
+const onScrollFrame = () => {
+  scrollQueued = false;
+  const y = scrollY;
+
+  progress.style.transform = `scaleX(${scrollMax > 0 ? y / scrollMax : 0})`;
+
+  // Toggle only on an actual state change: writing the same class every frame
+  // invalidates style for the nav subtree for nothing.
+  const scrolled = y > 20;
+  if (scrolled !== navScrolled) {
+    navScrolled = scrolled;
+    nav.classList.toggle("is-scrolled", scrolled);
+  }
+
   // Hide going down past the hero, show the moment the user scrolls back up.
-  nav.classList.toggle("is-hidden", y > lastScroll && y > 500);
+  const hidden = y > lastScroll && y > 500;
+  if (hidden !== navHidden) {
+    navHidden = hidden;
+    nav.classList.toggle("is-hidden", hidden);
+  }
 
   scrollVelocity = Math.min(Math.abs(y - lastScroll) / 14, 3);
   lastScroll = y;
+};
+
+// Scroll events fire faster than the display refreshes; coalesce to one frame.
+addEventListener("scroll", () => {
+  if (scrollQueued) return;
+  scrollQueued = true;
+  requestAnimationFrame(onScrollFrame);
 }, { passive: true });
 
 /* ---------- entrance ---------- */
@@ -253,6 +287,7 @@ if (marqueeTrack) {
     let last = performance.now();
     let running = false;
 
+    const tracks = [...marquee.querySelectorAll(".marquee__track")];
     const measure = () => { span = marqueeTrack.offsetWidth; };
     measure();
     addEventListener("resize", measure, { passive: true });
@@ -277,7 +312,9 @@ if (marqueeTrack) {
         while (offset > 0) offset -= span;
       }
 
-      marquee.style.setProperty("--mx", offset.toFixed(2) + "px");
+      const shift = `translate3d(${offset.toFixed(2)}px,0,0)`;
+      for (const track of tracks) track.style.transform = shift;
+
       requestAnimationFrame(frame);
     };
 
