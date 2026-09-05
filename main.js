@@ -650,7 +650,11 @@ if (signalCanvas && !reduceMotion.matches) {
   const pointer = { x: 0, y: 0, active: false };
 
   const resize = () => {
-    const ratio = Math.min(devicePixelRatio || 1, 2);
+    // The field is a soft, diffuse texture and does not need a full device
+    // pixel ratio backing store. At 2x on a retina laptop this canvas cleared
+    // and repainted well over five megapixels every frame, which is what made
+    // scrolling stutter on screens larger than the one it was tuned on.
+    const ratio = Math.min(devicePixelRatio || 1, 1.25);
     width = signalCanvas.offsetWidth;
     height = signalCanvas.offsetHeight;
     signalCanvas.width = width * ratio;
@@ -731,13 +735,13 @@ if (signalCanvas && !reduceMotion.matches) {
       }
     });
 
-    context.lineWidth = .75;
+    context.lineWidth = .95;
     context.strokeStyle = inkStroke;
     context.stroke(inkPath);
 
     // The coloured strokes sit slightly heavier so a smaller number of them
     // still carries the field.
-    context.lineWidth = 1.15;
+    context.lineWidth = 1.35;
     context.strokeStyle = coralStroke;
     context.stroke(coralPath);
 
@@ -756,11 +760,15 @@ if (signalCanvas && !reduceMotion.matches) {
   new MutationObserver(() => { readPalette(); resize(); })
     .observe(root, { attributes: true, attributeFilter: ["class"] });
 
-  // Stop burning frames once the hero is off screen or the tab is hidden.
+  // Stop well before the hero fully leaves. By the time a tenth of the field
+  // is left on screen it is almost entirely behind the mask anyway, and this
+  // is exactly when the marquee below it is coming into view and wants the
+  // frame budget.
   new IntersectionObserver(([entry]) => {
-    if (entry.isIntersecting && !running) { running = true; requestAnimationFrame(draw); }
-    else if (!entry.isIntersecting) running = false;
-  }).observe(signalCanvas);
+    const live = entry.isIntersecting && entry.intersectionRatio > .1;
+    if (live && !running) { running = true; requestAnimationFrame(draw); }
+    else if (!live) running = false;
+  }, { threshold: [0, .1, .25] }).observe(signalCanvas);
 
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) running = false;
