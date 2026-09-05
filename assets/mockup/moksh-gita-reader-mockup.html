@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>moksh — Bhagavad Gita reader</title>
+  <style>
+    :root {
+      --ink: #332919;
+      --muted: #897757;
+      --gold: #a16f27;
+      --gold-bright: #c99845;
+      --paper: #f8f1df;
+      --paper-deep: #eee0c4;
+      --line: rgba(126, 88, 30, .18);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { background: transparent !important; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      overflow-x: hidden;
+      color: var(--ink);
+      background: transparent;
+      font-family: Georgia, "Times New Roman", serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .stage { padding: 36px 20px; text-align: center; }
+
+    .phone {
+      position: relative;
+      width: 402px;
+      height: 874px;
+      padding: 10px;
+      overflow: hidden;
+      border: 1px solid #9f7b44;
+      border-radius: 62px;
+      background: linear-gradient(115deg, #0f0d0b, #282019 36%, #080706 70%, #342716);
+      box-shadow: inset 0 0 0 1px rgba(255, 230, 176, .12);
+    }
+
+    .phone::before {
+      content: "";
+      position: absolute;
+      z-index: 4;
+      top: 14px;
+      left: 50%;
+      width: 118px;
+      height: 34px;
+      transform: translateX(-50%);
+      border-radius: 22px;
+      background: #090807;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+
+    .screen {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+      border-radius: 53px;
+      background:
+        radial-gradient(ellipse at 50% -12%, rgba(255,255,255,.82), transparent 39%),
+        radial-gradient(ellipse at 50% 105%, rgba(184, 132, 54, .18), transparent 38%),
+        var(--paper);
+    }
+
+    .screen::before, .screen::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .screen::before {
+      inset: 0;
+      opacity: .52;
+      background-image: radial-gradient(rgba(104, 73, 27, .16) .55px, transparent .55px);
+      background-size: 5px 5px;
+      mix-blend-mode: multiply;
+    }
+
+    .screen::after {
+      inset: 0;
+      box-shadow: inset 0 0 48px rgba(78, 47, 14, .12);
+    }
+
+    .status, .content { position: relative; z-index: 2; }
+
+    .status {
+      height: 57px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 18px 26px 0 27px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -.2px;
+    }
+
+    .signal { display: flex; align-items: center; gap: 5px; font-size: 12px; }
+    .signal i { display: block; width: 16px; height: 10px; border: 1.5px solid #342919; border-radius: 3px; position: relative; }
+    .signal i::after { content: ""; position: absolute; inset: 1px; border-radius: 1px; background: #342919; }
+    .signal b { font-size: 14px; letter-spacing: 1px; }
+
+    .content { padding: 7px 21px 22px; }
+
+    .navigation { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 45px; }
+    .nav-button, .language, .icon-button, .audio-button { border: 0; color: var(--ink); font: inherit; cursor: pointer; }
+
+    .nav-button {
+      justify-self: start;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 0;
+      background: transparent;
+      color: #715323;
+      font-size: 14px;
+    }
+    .nav-button svg { width: 15px; height: 15px; }
+
+    .wordmark {
+      color: #8a6124;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: .02em;
+      text-shadow: 0 1px rgba(255,255,255,.7);
+    }
+
+    .language {
+      justify-self: end;
+      padding: 7px 10px;
+      border: 1px solid rgba(137, 97, 36, .23);
+      border-radius: 999px;
+      background: rgba(255,255,255,.4);
+      color: #805d27;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .09em;
+    }
+
+    .book-line { margin: 13px auto 0; width: 92%; text-align: center; }
+    .book-line h1 { margin: 0; color: #6e5227; font-size: 16px; font-weight: 500; letter-spacing: .025em; }
+    .book-line p { margin: 5px 0 11px; color: var(--muted); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+    .rule { height: 1px; background: linear-gradient(90deg, transparent, rgba(134, 94, 34, .42), transparent); }
+
+    .verse { position: relative; min-height: 436px; padding: 55px 13px 0; text-align: center; cursor: pointer; }
+    .reference { display: flex; justify-content: space-between; align-items: center; color: #a28657; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 10px; letter-spacing: .11em; }
+    .reference b { font-weight: 700; }
+    .reference .mode { padding: 4px 9px; border-radius: 99px; background: rgba(153, 112, 43, .09); color: #9b753a; font-size: 9px; }
+    .ornament { margin: 20px auto 26px; width: 54px; height: 1px; background: #d7c39c; position: relative; }
+    .ornament::before { content: "✦"; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); padding: 0 7px; background: var(--paper); color: #bc914f; font-size: 12px; }
+
+    .sanskrit { min-height: 173px; margin: 0 auto; color: #79541c; font-size: 29px; font-weight: 500; line-height: 1.54; letter-spacing: .005em; font-family: "Noto Sans Devanagari", "Kohinoor Devanagari", "Devanagari Sangam MN", serif; }
+    .translation { max-width: 294px; margin: 17px auto 0; color: #79684b; font-size: 14px; font-style: italic; line-height: 1.55; opacity: .9; transition: opacity .25s ease, transform .25s ease; }
+    .translation.hidden { opacity: 0; transform: translateY(-5px); }
+    .meaning-hint { margin: 18px 0 0; color: #a58b61; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; transform: translateY(-14px); transition: opacity .2s ease; }
+    .meaning-hint.visible { opacity: 0; }
+
+    .bookmark { position: absolute; right: 2px; top: 204px; padding: 8px; background: transparent; color: #aa8b57; }
+    .bookmark svg { width: 17px; height: 19px; }
+    .bookmark.saved { color: #a87021; }
+
+    .player {
+      margin: 2px 5px 18px;
+      padding: 14px 14px 13px;
+      border: 1px solid rgba(142, 100, 35, .19);
+      border-radius: 20px;
+      background: linear-gradient(115deg, rgba(255,255,255,.55), rgba(239,223,190,.68));
+      box-shadow: 0 8px 17px rgba(117, 79, 20, .08);
+    }
+    .audio-top { display: flex; align-items: center; gap: 10px; }
+    .audio-button { width: 39px; height: 39px; display: grid; place-items: center; flex: none; border-radius: 50%; background: #9b6d29; color: #fff7e5; box-shadow: 0 4px 10px rgba(112, 73, 18, .23); }
+    .audio-button svg { width: 17px; height: 17px; }
+    .audio-copy { flex: 1; text-align: left; }
+    .audio-copy small { display: block; color: #947a50; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 10px; letter-spacing: .05em; text-transform: uppercase; }
+    .audio-copy strong { display: block; margin-top: 2px; color: #674b25; font-size: 13px; font-weight: 600; }
+    .wave { display: flex; align-items: center; justify-content: flex-end; gap: 2px; height: 23px; }
+    .wave i { width: 2px; height: 5px; border-radius: 4px; background: #bd914d; animation: sound 900ms ease-in-out infinite alternate; animation-play-state: paused; }
+    .wave i:nth-child(2n) { height: 14px; animation-delay: -250ms; }.wave i:nth-child(3n) { height: 20px; animation-delay: -520ms; }
+    .player.playing .wave i { animation-play-state: running; }
+    @keyframes sound { to { transform: scaleY(.35); opacity: .48; } }
+    .seek { position: relative; height: 3px; margin: 12px 2px 3px; overflow: hidden; border-radius: 9px; background: rgba(125, 91, 38, .16); }
+    .seek span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #a47027, #d0a65e); transition: width .18s linear; }
+    .times { display: flex; justify-content: space-between; margin: 6px 2px 0; color: #a08a65; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 9px; }
+
+    .footer { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 4px; }
+    .icon-button { width: 40px; height: 36px; display: grid; place-items: center; border-radius: 15px; background: rgba(255,255,255,.37); color: #8c6d36; box-shadow: 0 3px 8px rgba(110, 74, 21, .08); }
+    .icon-button:last-child { justify-self: end; }
+    .icon-button svg { width: 17px; height: 17px; }
+    .page { display: inline-flex; align-items: center; gap: 13px; padding: 8px 14px; border-radius: 20px; background: rgba(255,255,255,.52); box-shadow: 0 3px 8px rgba(110, 74, 21, .08); color: #846632; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 11px; }
+    .page b { color: #664920; font-weight: 800; }
+
+    .caption { max-width: 420px; margin: 20px auto 0; color: rgba(252, 235, 196, .66); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 12px; line-height: 1.55; }
+
+    @media (max-width: 460px) {
+      .stage { width: 100%; padding: 16px 0; }
+      .phone { transform: scale(.82); transform-origin: top center; margin-bottom: -135px; }
+      .caption { padding: 0 30px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+    /* ---- bare mode (?bare=1) -------------------------------------------
+       Drops this file's own bezel, stage and caption so the document renders
+       as nothing but the screen, for embedding inside an external phone
+       frame. Without the flag everything below is inert. */
+    /* Explicit 100% chain rather than 100vh: inside an iframe, vh units can
+       resolve against something other than the frame's own box, which left the
+       phone short of the screen and produced dead space at the bottom. */
+    html.bare,
+    html.bare body {
+      min-height: 0;
+      height: 100%;
+      margin: 0;
+      display: block;
+      background: none;
+      overflow: hidden;
+    }
+
+    html.bare .stage { padding: 0; height: 100%; }
+
+    html.bare .phone {
+      width: 100%;
+      height: 100%;
+      /* Cancels the max-width:460px rule below, which scales the phone to .82
+         for real handsets. The embed frame is 390px wide so that rule fires and
+         shrinks the reader inside its own bezel. */
+      transform: none;
+      margin-bottom: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: none;
+      box-shadow: none;
+    }
+
+    html.bare .phone::before { display: none; }
+
+    html.bare .screen { height: 100%; border-radius: 0; }
+
+    html.bare .caption { display: none; }
+
+    /* .content flows top-down with no height fill, so at the embed's height it
+       ends early and leaves dead space above the bezel's bottom edge. Stretch it
+       and pin the footer. */
+    html.bare .screen { display: flex; flex-direction: column; }
+    html.bare .content { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    html.bare .verse { flex: 1; }
+    html.bare .footer { margin-top: auto; }
+  </style>
+<script>
+    if (new URLSearchParams(location.search).has("bare")) {
+      document.documentElement.classList.add("bare");
+    }
+  </script>
+</head>
+<body>
+  <main class="stage">
+    <section class="phone" aria-label="Moksh Bhagavad Gita reader mockup">
+      <div class="screen">
+        <div class="status"><span>11:18</span><span class="signal"><b>••••</b> ◔ <i></i></span></div>
+        <div class="content">
+          <nav class="navigation">
+            <button class="nav-button" aria-label="Back to chapters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m14 6-6 6 6 6"/></svg> Back</button>
+            <div class="wordmark">moksh</div>
+            <button id="language" class="language" type="button">EN</button>
+          </nav>
+
+          <header class="book-line"><h1>Bhagavad Gita</h1><p>Chapter 1 · Arjuna's Dilemma</p><div class="rule"></div></header>
+
+          <article class="verse">
+            <div class="reference"><b id="verseRef">BG 1:1</b><span class="mode" id="mode">Sanskrit</span></div>
+            <div class="ornament"></div>
+            <p class="sanskrit" id="sanskrit">धृतराष्ट्र उवाच<br>धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः।<br>मामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय</p>
+            <p class="translation hidden" id="translation">Dhritarashtra said, “What did my people and the sons of Pandu do when they assembled on the holy plain of Kurukshetra, eager for battle?”</p>
+            <p class="meaning-hint" id="meaningHint">Tap the verse to reveal its meaning</p>
+          </article>
+
+          <section id="player" class="player" aria-label="Verse audio player">
+            <div class="audio-top">
+              <button id="audioToggle" class="audio-button" type="button" aria-label="Play Sanskrit recitation"><svg id="audioIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+              <div class="audio-copy"><small>Now playing</small><strong>Sanskrit recitation</strong></div>
+              <div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+            <div class="seek"><span></span></div><div class="times"><span id="elapsed">0:00</span><span id="total">0:16</span></div>
+          </section>
+          <audio id="recitation" preload="metadata" src="https://pub-3de33be1b6424734932165c780707b2b.r2.dev/gita/sanskrit/1/1.mp3"></audio>
+
+          <footer class="footer">
+            <button class="icon-button" id="previous" type="button" aria-label="Previous verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14 6-6 6 6 6"/></svg></button>
+            <div class="page"><span>Verse</span><b id="page">1</b><span>of 3</span></div>
+            <button class="icon-button" id="next" type="button" aria-label="Next verse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10 6 6 6-6 6"/></svg></button>
+          </footer>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const verses = [
+      { n: 1, duration: 16, audio: 'https://pub-3de33be1b6424734932165c780707b2b.r2.dev/gita/sanskrit/1/1.mp3', sa: 'धृतराष्ट्र उवाच<br>धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः।<br>मामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय', en: 'Dhritarashtra said, “What did my people and the sons of Pandu do when they assembled on the holy plain of Kurukshetra, eager for battle?”', hi: 'धृतराष्ट्र ने कहा — हे संजय! धर्मभूमि कुरुक्षेत्र में एकत्र हुए मेरे और पाण्डु के पुत्रों ने क्या किया?' },
+      { n: 2, duration: 17, audio: 'https://pub-3de33be1b6424734932165c780707b2b.r2.dev/gita/sanskrit/1/2.mp3', sa: 'सञ्जय उवाच<br>दृष्ट्वा तु पाण्डवानीकं व्यूढं दुर्योधनस्तदा।<br>आचार्यमुपसङ्गम्य राजा वचनमब्रवीत्', en: 'Sanjaya said: Seeing the Pandava army arranged for battle, King Duryodhana approached his teacher Drona and spoke these words.', hi: 'संजय ने कहा — पाण्डव सेना की व्यूह रचना देखकर राजा दुर्योधन आचार्य द्रोण के पास गए और ये वचन बोले।' },
+      { n: 3, duration: 13, audio: 'https://pub-3de33be1b6424734932165c780707b2b.r2.dev/gita/sanskrit/1/3.mp3', sa: 'पश्यैतां पाण्डुपुत्राणामाचार्य महतीं चमूम्।<br>व्यूढां द्रुपदपुत्रेण तव शिष्येण धीमता', en: 'Behold, O Teacher, this mighty army of the sons of Pandu, arranged by the wise son of Drupada, your disciple.', hi: 'हे आचार्य! आपके बुद्धिमान शिष्य द्रुपदपुत्र द्वारा व्यूहाकार खड़ी की गई पाण्डु पुत्रों की इस महती सेना को देखिए।' }
+    ];
+
+    let verseIndex = 0;
+    let language = 'EN';
+    let showMeaning = false;
+    const $ = (id) => document.getElementById(id);
+    const recitation = $('recitation');
+
+    function renderVerse() {
+      const verse = verses[verseIndex];
+      $('verseRef').textContent = `BG 1:${verse.n}`;
+      $('page').textContent = verse.n;
+      $('sanskrit').innerHTML = verse.sa;
+      $('translation').textContent = language === 'EN' ? verse.en : verse.hi;
+      $('translation').classList.toggle('hidden', !showMeaning);
+      $('meaningHint').classList.toggle('visible', showMeaning);
+      recitation.pause();
+      recitation.src = verse.audio;
+      recitation.load();
+      $('elapsed').textContent = '0:00';
+      $('total').textContent = formatTime(verse.duration);
+      $('player').querySelector('.seek span').style.width = '0%';
+      setAudio(false);
+    }
+
+    function setAudio(isPlaying) {
+      const player = $('player');
+      player.classList.toggle('playing', isPlaying);
+      $('audioToggle').setAttribute('aria-label', isPlaying ? 'Pause Sanskrit recitation' : 'Play Sanskrit recitation');
+      $('audioIcon').innerHTML = isPlaying ? '<path d="M7 5h3v14H7zm7 0h3v14h-3z"/>' : '<path d="M8 5v14l11-7z"/>';
+    }
+
+    function formatTime(seconds) { const value = Math.max(0, Math.floor(seconds || 0)); return `${Math.floor(value / 60)}:${String(value % 60).padStart(2, '0')}`; }
+
+    $('next').addEventListener('click', () => { verseIndex = (verseIndex + 1) % verses.length; showMeaning = false; renderVerse(); });
+    $('previous').addEventListener('click', () => { verseIndex = (verseIndex + verses.length - 1) % verses.length; showMeaning = false; renderVerse(); });
+    $('language').addEventListener('click', () => { language = language === 'EN' ? 'HI' : 'EN'; $('language').textContent = language; $('mode').textContent = language === 'EN' ? 'Sanskrit' : 'Hindi'; renderVerse(); });
+    document.querySelector('.verse').addEventListener('click', () => { showMeaning = !showMeaning; renderVerse(); });
+    $('audioToggle').addEventListener('click', async () => {
+      if (recitation.paused) { await recitation.play(); } else { recitation.pause(); }
+    });
+    recitation.addEventListener('play', () => setAudio(true));
+    recitation.addEventListener('pause', () => setAudio(false));
+    recitation.addEventListener('ended', () => setAudio(false));
+    recitation.addEventListener('timeupdate', () => {
+      const verse = verses[verseIndex];
+      $('elapsed').textContent = formatTime(recitation.currentTime);
+      $('player').querySelector('.seek span').style.width = `${Math.min(100, recitation.currentTime / verse.duration * 100)}%`;
+    });
+  </script>
+</body>
+</html>

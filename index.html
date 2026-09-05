@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Krishna Ganga — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;0,6..96,900;1,6..96,400&family=Italiana&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=9">
+</head>
+<body>
+
+<div class="loader" id="loader">
+  <div class="loader__mono">
+    <span class="loader__k">K</span><span class="loader__g">G</span>
+  </div>
+  <div class="loader__bar"><div class="loader__fill"></div></div>
+</div>
+
+<header class="nav">
+  <div class="nav__brand">
+    KG
+    <button class="bulb" id="bulb" aria-label="Toggle dark mode" type="button">
+      <span class="bulb__cord"></span>
+      <span class="bulb__glass">
+        <span class="bulb__filament"></span>
+        <span class="bulb__glow"></span>
+      </span>
+    </button>
+  </div>
+  <nav class="nav__links">
+    <a href="#work">Work</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="name" id="name">
+    <div class="name__row">
+      <span class="name__first">Krishna<span class="name__dot">.</span></span>
+    </div>
+    <div class="name__reveal">
+      <span class="name__last">Ganga</span>
+    </div>
+  </div>
+  <div class="hero__about">
+    <p class="hero__lede">
+      Hello, I build
+      <span class="hl-pop"><a href="#work" class="hl">software</a><span class="pop">— a lot of software <span class="pop__glyph">✿</span></span></span>.
+    </p>
+    <p class="hero__sub">
+      Software engineer &amp; published AI researcher based in Bangalore.
+      Currently shipping at <em>EY</em> 💼 on Guidewire.
+    </p>
+  </div>
+  <div class="hero__hint">Hover the name</div>
+</section>
+
+<!-- STACKED DECK -->
+<section class="concept c1" id="work">
+  <div class="c1__stage">
+    <div class="c1__hint" id="c1Hint"><span id="c1HintTxt">Click here to know more</span> <span class="c1__hint-arrow">→</span></div>
+    <div class="c1__stack">
+      <button class="c1__card" type="button"
+              data-title="rice"
+              data-app="assets/screens/home.jpg"
+              data-web="https://rice.mechaclips.workers.dev/"
+              style="--tilt:-4deg;--tone:#3d8f5e;--img:url('assets/wallpaper/rice-otter.png');--img-pos:center 65%">
+        <span class="c1__num">01</span>
+        <span class="c1__ttl"><em>rice</em></span>
+        <span class="c1__row"><span>iOS · Web</span><span>AI Food Log</span><span>2025</span></span>
+      </button>
+      <button class="c1__card" type="button"
+              data-title="Moksh"
+              data-app="assets/mockup/moksh-gita-reader-mockup.html"
+              data-app-framed="true"
+              data-web="https://moksh.site/"
+              style="--tilt:3deg;--tone:#1a1208;--img:url('assets/wallpaper/moksh-krishna.png');--img-pos:right center">
+        <span class="c1__num">02</span>
+        <span class="c1__ttl"><em>Moksh</em></span>
+        <span class="c1__row"><span>iOS · Web</span><span>Bhagavad Gita</span><span>2025</span></span>
+      </button>
+      <button class="c1__card" type="button"
+              data-title="CNN Research"
+              data-app=""
+              data-web=""
+              style="--tilt:-2deg;--tone:#1b2a4a;--img:url('assets/wallpaper/03-falls.jpg')">
+        <span class="c1__num">03</span>
+        <span class="c1__ttl"><em>CNN Research</em></span>
+        <span class="c1__row"><span>Paper</span><span>ICSTE</span><span>2024</span></span>
+      </button>
+      <div class="c1__card" style="--tilt:4deg;--tone:#8a6a2e">
+        <span class="c1__num">04</span>
+        <span class="c1__ttl"><em>More</em></span>
+        <span class="c1__row"><span>Coming</span><span>Soon</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<footer class="foot" id="contact">
+  <div class="foot__title">Let's <em>talk</em>.</div>
+  <a class="foot__mail" href="mailto:krishna091718@gmail.com">krishna091718@gmail.com</a>
+  <div class="foot__row"><span>© 2026 Krishna Ganga</span></div>
+</footer>
+
+<!-- CARD REVEAL OVERLAY -->
+<div class="reveal" id="reveal" aria-hidden="true">
+  <button class="reveal__close" id="revealClose" aria-label="Close">×</button>
+  <div class="reveal__hd">
+    <span class="reveal__eyebrow" id="revealEy">Project</span>
+    <h3 class="reveal__title" id="revealTitle"><em>rice</em></h3>
+  </div>
+  <div class="duo" id="revealDuo">
+    <div class="duo__phone">
+      <div class="ph">
+        <div class="ph__notch"></div>
+        <div class="ph__screen">
+          <img id="revealApp" src="" alt="">
+          <iframe id="revealAppFrame" title="app mockup" hidden></iframe>
+        </div>
+      </div>
+    </div>
+    <div class="duo__laptop">
+      <div class="lp">
+        <div class="lp__bar"><span></span><span></span><span></span></div>
+        <div class="lp__screen"><iframe id="revealWeb" src="about:blank" title="site"></iframe></div>
+        <div class="lp__base"></div>
+      </div>
+    </div>
+  </div>
+  <div class="reveal__placeholder" id="revealPlaceholder" hidden>
+    Case study coming soon.
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="main.js?v=9"></script>
+</body>
+</html>
