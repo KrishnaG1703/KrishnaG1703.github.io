@@ -90,7 +90,6 @@ const nav = document.getElementById("nav");
 const progress = document.getElementById("progress");
 let lastScroll = 0;
 let scrollVelocity = 0;
-let wakeMarquee = () => {};
 
 addEventListener("scroll", () => {
   const y = scrollY;
@@ -103,7 +102,6 @@ addEventListener("scroll", () => {
 
   scrollVelocity = Math.min(Math.abs(y - lastScroll) / 14, 3);
   lastScroll = y;
-  wakeMarquee();
 }, { passive: true });
 
 /* ---------- entrance ---------- */
@@ -234,36 +232,74 @@ if (clock) {
   setInterval(tick, 1000);
 }
 
-/* ---------- marquee: seamless loop, speed follows scroll ---------- */
+/* ---------- marquee ----------
+   Driven by one custom property per frame instead of a CSS animation.
+   Rewriting animationDuration restarts the animation, so the old version
+   jumped on every speed change and again when hover released the pause. */
 const marqueeTrack = document.getElementById("marqueeTrack");
+
 if (marqueeTrack) {
-  marqueeTrack.parentElement.append(marqueeTrack.cloneNode(true));
+  const marquee = marqueeTrack.parentElement;
+  marquee.append(marqueeTrack.cloneNode(true));
+
   if (!reduceMotion.matches) {
-    const tracks = [...marqueeTrack.parentElement.querySelectorAll(".marquee__track")];
-    let applied = null;
+    const BASE = 46;      // pixels per second at rest
+    const BOOST = 130;    // extra pixels per second at full scroll velocity
 
-    // Writing animationDuration restarts the animation and forces a style
-    // recalc, so only write when the rounded value actually changes rather
-    // than on every frame.
-    let pulsing = false;
+    let offset = 0;
+    let span = 0;
+    let ease = 1;         // 0 while hovered, eased so there is no jump
+    let target = 1;
+    let last = performance.now();
+    let running = false;
 
-    const pulse = () => {
-      scrollVelocity *= .92;
-      const seconds = Math.round((34 / (1 + scrollVelocity)) * 4) / 4;
-      if (seconds !== applied) {
-        applied = seconds;
-        tracks.forEach((track) => { track.style.animationDuration = `${seconds}s`; });
+    const measure = () => { span = marqueeTrack.offsetWidth; };
+    measure();
+    addEventListener("resize", measure, { passive: true });
+
+    marquee.addEventListener("pointerenter", () => { target = 0; });
+    marquee.addEventListener("pointerleave", () => { target = 1; });
+
+    const frame = (now) => {
+      if (!running) return;
+
+      // Clamp dt so a long stall cannot teleport the strip.
+      const dt = Math.min((now - last) / 1000, .05);
+      last = now;
+
+      scrollVelocity *= .93;
+      ease += (target - ease) * .1;
+      offset -= (BASE + scrollVelocity * BOOST) * ease * dt;
+
+      if (span > 0) {
+        // Wrap by exactly one track width so the seam never shows.
+        while (offset <= -span) offset += span;
+        while (offset > 0) offset -= span;
       }
-      // Park the loop once the marquee is back at rest; scrolling wakes it.
-      if (scrollVelocity > .01) requestAnimationFrame(pulse);
-      else pulsing = false;
+
+      marquee.style.setProperty("--mx", offset.toFixed(2) + "px");
+      requestAnimationFrame(frame);
     };
 
-    wakeMarquee = () => {
-      if (pulsing) return;
-      pulsing = true;
-      requestAnimationFrame(pulse);
+    const start = () => {
+      if (running) return;
+      running = true;
+      last = performance.now();
+      requestAnimationFrame(frame);
     };
+
+    const stop = () => { running = false; };
+
+    // Only animate while the strip is actually on screen and the tab is open.
+    new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !document.hidden) start();
+      else stop();
+    }).observe(marquee);
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stop();
+      else if (marquee.getBoundingClientRect().top < innerHeight) start();
+    });
   }
 }
 
@@ -396,10 +432,16 @@ const shatterLayer = document.getElementById("shatter");
 const COLS = 6;
 const ROWS = 8;
 
-function shatter(card, done) {
-  if (!shatterLayer || reduceMotion.matches) { done(); return; }
+let shattering = false;
 
-  const deckBox = card.offsetParent.getBoundingClientRect();
+function shatter(card, done) {
+  // One break at a time: a second click mid-animation used to spawn an
+  // overlapping shard set and let the first timer un-hide the card early.
+  if (shattering) return;
+  if (!shatterLayer || reduceMotion.matches) { done(); return; }
+  shattering = true;
+
+  const deckBox = (card.offsetParent || document.body).getBoundingClientRect();
   const width = card.offsetWidth;
   const height = card.offsetHeight;
   const styles = getComputedStyle(card);
@@ -460,6 +502,7 @@ function shatter(card, done) {
   setTimeout(() => {
     box.remove();
     card.classList.remove("is-shattering");
+    shattering = false;
   }, 1200);
 
   // Open the project just after the break starts, so the two read as one move.
