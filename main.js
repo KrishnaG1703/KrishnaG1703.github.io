@@ -320,35 +320,11 @@ if (finePointer.matches && !reduceMotion.matches) {
   });
 }
 
-/* ---------- project cards: tilt + image parallax ---------- */
-if (finePointer.matches && !reduceMotion.matches) {
-  document.querySelectorAll(".project").forEach((card) => {
-    let queued = false;
-    let nx = 0, ny = 0;
-
-    const apply = () => {
-      queued = false;
-      card.style.transform = `perspective(900px) rotateX(${-ny * 5}deg) rotateY(${nx * 5}deg) translateY(-6px)`;
-      card.style.setProperty("--px", `${-nx * 22}px`);
-      card.style.setProperty("--py", `${-ny * 22}px`);
-    };
-
-    // Pointer events fire faster than the display refreshes; coalesce them.
-    card.addEventListener("pointermove", (event) => {
-      const box = card.getBoundingClientRect();
-      nx = (event.clientX - box.left) / box.width - .5;
-      ny = (event.clientY - box.top) / box.height - .5;
-      if (!queued) { queued = true; requestAnimationFrame(apply); }
-    }, { passive: true });
-    card.addEventListener("pointerleave", () => {
-      card.style.transition = "transform .6s cubic-bezier(.2,.8,.2,1), color .4s, border-color .4s";
-      card.style.transform = "";
-      card.style.setProperty("--px", "0px");
-      card.style.setProperty("--py", "0px");
-      setTimeout(() => { card.style.transition = ""; }, 620);
-    });
-  });
-}
+/* The deck cards deliberately have no pointer-tracking tilt. Each card's
+   place in the fan is carried by its own transform, and writing an inline
+   transform on pointermove replaced that transform, dragging the outer cards
+   toward the centre and into Moksh. The cards hold still; the hover state is
+   the artwork reveal alone. */
 
 /* ---------- reveal modal ---------- */
 const reveal = document.getElementById("reveal");
@@ -432,14 +408,22 @@ const shatterLayer = document.getElementById("shatter");
 const COLS = 6;
 const ROWS = 8;
 
-let shattering = false;
+let activeShatter = null;
+
+// Retire a break rather than refusing the next one: a boolean guard would
+// dead-end the whole deck if its cleanup timer were ever delayed, which is
+// exactly what happens to timers in a backgrounded tab.
+function clearShatter() {
+  if (!activeShatter) return;
+  clearTimeout(activeShatter.timer);
+  activeShatter.box.remove();
+  activeShatter.card.classList.remove("is-shattering");
+  activeShatter = null;
+}
 
 function shatter(card, done) {
-  // One break at a time: a second click mid-animation used to spawn an
-  // overlapping shard set and let the first timer un-hide the card early.
-  if (shattering) return;
+  clearShatter();
   if (!shatterLayer || reduceMotion.matches) { done(); return; }
-  shattering = true;
 
   const deckBox = (card.offsetParent || document.body).getBoundingClientRect();
   const width = card.offsetWidth;
@@ -499,11 +483,7 @@ function shatter(card, done) {
     });
   });
 
-  setTimeout(() => {
-    box.remove();
-    card.classList.remove("is-shattering");
-    shattering = false;
-  }, 1200);
+  activeShatter = { box, card, timer: setTimeout(clearShatter, 1200) };
 
   // Open the project just after the break starts, so the two read as one move.
   setTimeout(done, 320);

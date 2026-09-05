@@ -592,14 +592,11 @@ a { color: inherit; text-decoration: none; }
   z-index: 6;
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 34px 70px rgba(40, 28, 8, .3);
+  box-shadow: 0 34px 70px rgba(40, 28, 8, .34);
 }
 
-/* Hover only scales, and the origin is the bottom edge, so the card grows
-   upward around the pointer instead of sliding away from it. */
-.project--rice:hover     { transform: translateX(-52%) rotate(-9deg) scale(1.06); }
-.project--research:hover { transform: translateX(52%) rotate(9deg) scale(1.06); }
-.project--moksh:hover    { transform: scale(1.06); }
+/* Hover changes no geometry: the cards hold their fan positions and the
+   hover state is carried entirely by the artwork, colour and depth. */
 
 .project--rice     { background: color-mix(in srgb, #74a96b 15%, var(--card)); }
 .project--moksh    { background: color-mix(in srgb, #d69b42 15%, var(--card)); }
@@ -996,10 +993,6 @@ a { color: inherit; text-decoration: none; }
     height: 300px;
     transform: none;
   }
-  .project:hover,
-  .project--rice:hover,
-  .project--research:hover,
-  .project--moksh:hover { transform: none; }
   .about { grid-template-columns: 1fr; gap: 44px; }
 }
 
