@@ -3,101 +3,87 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Krishna Ganga — Portfolio</title>
+<title>Krishna Ganga — Software engineer & AI researcher</title>
+<meta name="description" content="The selected work of Krishna Ganga — software engineer and published AI researcher in Bangalore." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;0,6..96,900;1,6..96,400&family=Italiana&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=9">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 
-<div class="loader" id="loader">
-  <div class="loader__mono">
-    <span class="loader__k">K</span><span class="loader__g">G</span>
-  </div>
-  <div class="loader__bar"><div class="loader__fill"></div></div>
-</div>
-
 <header class="nav">
-  <div class="nav__brand">
-    KG
-    <button class="bulb" id="bulb" aria-label="Toggle dark mode" type="button">
-      <span class="bulb__cord"></span>
-      <span class="bulb__glass">
-        <span class="bulb__filament"></span>
-        <span class="bulb__glow"></span>
-      </span>
-    </button>
-  </div>
+  <a class="nav__brand" href="#top" aria-label="Back to top">KG<span>.</span></a>
   <nav class="nav__links">
     <a href="#work">Work</a>
     <a href="#contact">Contact</a>
   </nav>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark theme" aria-pressed="false"><span></span> Theme</button>
 </header>
 
+<main id="top">
 <section class="hero">
-  <div class="name" id="name">
-    <div class="name__row">
-      <span class="name__first">Krishna<span class="name__dot">.</span></span>
-    </div>
-    <div class="name__reveal">
-      <span class="name__last">Ganga</span>
-    </div>
+  <div class="hero__system" aria-hidden="true">
+    <canvas class="hero__canvas" id="signalCanvas"></canvas>
+    <span class="hero__signal">K.G / BUILDING IN PUBLIC</span>
+    <span class="hero__coordinate">12.9716° N / 77.5946° E</span>
   </div>
-  <div class="hero__about">
-    <p class="hero__lede">
-      Hello, I build
-      <span class="hl-pop"><a href="#work" class="hl">software</a><span class="pop">— a lot of software <span class="pop__glyph">✿</span></span></span>.
-    </p>
-    <p class="hero__sub">
-      Software engineer &amp; published AI researcher based in Bangalore.
-      Currently shipping at <em>EY</em> 💼 on Guidewire.
-    </p>
+  <p class="eyebrow hero__eyebrow">Portfolio · 2026</p>
+  <h1 class="hero__name">Krishna<br><em>Ganga</em></h1>
+  <div class="hero__bottom">
+    <p class="hero__lede"><span class="text-coral">Software engineer</span> &amp; published <span class="text-blue">AI researcher</span> designing useful, considered <span class="text-green">digital products.</span></p>
+    <a class="round-link" href="#work">Selected work <span aria-hidden="true">↓</span></a>
   </div>
-  <div class="hero__hint">Hover the name</div>
+  <p class="hero__location"><span class="text-coral">Bangalore, India</span> <span>•</span> Currently at EY</p>
 </section>
 
 <!-- STACKED DECK -->
-<section class="concept c1" id="work">
-  <div class="c1__stage">
-    <div class="c1__hint" id="c1Hint"><span id="c1HintTxt">Click here to know more</span> <span class="c1__hint-arrow">→</span></div>
-    <div class="c1__stack">
-      <button class="c1__card" type="button"
+<section class="work" id="work">
+  <div class="terminal-head">
+    <div>
+      <p class="eyebrow">01 / Selected work</p>
+      <h2>Things I’ve<br><em>shipped.</em></h2>
+    </div>
+  </div>
+  <p class="work-intro"><span class="text-coral">Product engineering,</span> <span class="text-blue">applied AI,</span> and interfaces that make sophisticated things feel <span class="text-green">simple.</span></p>
+  <div class="projects projects--grid">
+      <button class="project project--rice" type="button"
               data-title="rice"
+              data-type="iOS app · Web app · 2025"
+              data-description="An AI-assisted food log that makes the daily ritual of eating feel lighter, faster, and more human."
               data-app="assets/screens/home.jpg"
               data-web="https://rice.mechaclips.workers.dev/"
-              style="--tilt:-4deg;--tone:#3d8f5e;--img:url('assets/wallpaper/rice-otter.png');--img-pos:center 65%">
-        <span class="c1__num">01</span>
-        <span class="c1__ttl"><em>rice</em></span>
-        <span class="c1__row"><span>iOS · Web</span><span>AI Food Log</span><span>2025</span></span>
+              style="--image:url('assets/wallpaper/rice-otter.png')">
+        <span class="project__top"><span class="project__index">01 / APP_001</span><span class="project__year">2025</span></span>
+        <span class="project__title"><em>rice</em><small>AI food log</small></span>
+        <span class="project__bottom"><span>SwiftUI · Vision · Cloud</span><span class="project__open">Inspect <b>↗</b></span></span>
       </button>
-      <button class="c1__card" type="button"
+      <button class="project project--moksh" type="button"
               data-title="Moksh"
+              data-type="iOS app · Web app · 2025"
+              data-description="A contemporary, contemplative reading experience for the Bhagavad Gita—designed to bring ancient text closer to everyday life."
               data-app="assets/mockup/moksh-gita-reader-mockup.html"
               data-app-framed="true"
               data-web="https://moksh.site/"
-              style="--tilt:3deg;--tone:#1a1208;--img:url('assets/wallpaper/moksh-krishna.png');--img-pos:right center">
-        <span class="c1__num">02</span>
-        <span class="c1__ttl"><em>Moksh</em></span>
-        <span class="c1__row"><span>iOS · Web</span><span>Bhagavad Gita</span><span>2025</span></span>
+              style="--image:url('assets/wallpaper/moksh-krishna.png')">
+        <span class="project__top"><span class="project__index">02 / APP_002</span><span class="project__year">2025</span></span>
+        <span class="project__title"><em>Moksh</em><small>Bhagavad Gita, reimagined</small></span>
+        <span class="project__bottom"><span>iOS · Web · Reading UX</span><span class="project__open">Inspect <b>↗</b></span></span>
       </button>
-      <button class="c1__card" type="button"
+      <button class="project project--research" type="button"
               data-title="CNN Research"
+              data-type="Published research · ICSTE · 2024"
+              data-description="Published work exploring convolutional neural networks and their practical potential."
               data-app=""
               data-web=""
-              style="--tilt:-2deg;--tone:#1b2a4a;--img:url('assets/wallpaper/03-falls.jpg')">
-        <span class="c1__num">03</span>
-        <span class="c1__ttl"><em>CNN Research</em></span>
-        <span class="c1__row"><span>Paper</span><span>ICSTE</span><span>2024</span></span>
+              style="--image:url('assets/wallpaper/03-falls.jpg')">
+        <span class="project__top"><span class="project__index">03 / R&D_001</span><span class="project__year">2024</span></span>
+        <span class="project__title"><em>CNN research</em><small>Published at ICSTE</small></span>
+        <span class="project__bottom"><span>Neural nets · ICSTE</span><span class="project__open">Inspect <b>↗</b></span></span>
       </button>
-      <div class="c1__card" style="--tilt:4deg;--tone:#8a6a2e">
-        <span class="c1__num">04</span>
-        <span class="c1__ttl"><em>More</em></span>
-        <span class="c1__row"><span>Coming</span><span>Soon</span></span>
-      </div>
-    </div>
   </div>
 </section>
+</main>
 
 
 <footer class="foot" id="contact">
@@ -107,11 +93,12 @@
 </footer>
 
 <!-- CARD REVEAL OVERLAY -->
-<div class="reveal" id="reveal" aria-hidden="true">
+<div class="reveal" id="reveal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="revealTitle">
   <button class="reveal__close" id="revealClose" aria-label="Close">×</button>
   <div class="reveal__hd">
     <span class="reveal__eyebrow" id="revealEy">Project</span>
     <h3 class="reveal__title" id="revealTitle"><em>rice</em></h3>
+    <p class="reveal__description" id="revealDescription"></p>
   </div>
   <div class="duo" id="revealDuo">
     <div class="duo__phone">
@@ -136,8 +123,6 @@
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="main.js?v=9"></script>
+<script src="main.js?v=10"></script>
 </body>
 </html>
