@@ -155,13 +155,24 @@ document.querySelectorAll("[data-scramble]").forEach((el) => {
       })
       .join("");
 
-    if (t < 1) requestAnimationFrame(run);
+    if (t < 1 && !document.hidden) requestAnimationFrame(run);
     else el.textContent = final;
   };
 
-  setTimeout(() => requestAnimationFrame(run), 300);
-  // Hard guarantee: whatever happens to the animation, the real text lands.
-  setTimeout(() => { el.textContent = final; }, 300 + duration + 400);
+  // The effect destroys the real text before restoring it, so it only ever
+  // runs while the page is genuinely visible. A backgrounded tab freezes rAF
+  // and clamps timers, which would otherwise leave garbage on screen.
+  const finish = () => { el.textContent = final; };
+
+  const begin = () => {
+    if (document.hidden) return;
+    start = 0;
+    requestAnimationFrame(run);
+    setTimeout(finish, duration + 400);
+  };
+
+  document.addEventListener("visibilitychange", () => { if (document.hidden) finish(); });
+  setTimeout(begin, 300);
 });
 
 /* ---------- clock ---------- */
@@ -344,116 +355,184 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && reveal.classList.contains("is-open")) closeReveal();
 });
 
-/* ---------- hero signal field ---------- */
+/* ---------- hero index: pointer peek + jump to project ---------- */
+const peek = document.getElementById("peek");
+const heroIndex = document.getElementById("heroIndex");
+
+if (heroIndex) {
+  const cardFor = (key) => document.querySelector(`.project--${key}`);
+
+  heroIndex.querySelectorAll("button").forEach((row) => {
+    // Reuse the existing modal rather than duplicating the project content.
+    row.addEventListener("click", () => cardFor(row.dataset.jump)?.click());
+
+    if (!peek || !finePointer.matches || reduceMotion.matches) return;
+
+    row.addEventListener("pointerenter", () => {
+      peek.style.backgroundImage = `url('${row.dataset.peek}')`;
+      peek.classList.add("is-visible");
+    });
+    row.addEventListener("pointerleave", () => peek.classList.remove("is-visible"));
+  });
+
+  if (peek && finePointer.matches && !reduceMotion.matches) {
+    let peekX = 0, peekY = 0, targetX = 0, targetY = 0;
+
+    heroIndex.addEventListener("pointermove", (event) => {
+      targetX = event.clientX;
+      targetY = event.clientY;
+    }, { passive: true });
+
+    const follow = () => {
+      peekX = lerp(peekX, targetX, .12);
+      peekY = lerp(peekY, targetY, .12);
+      peek.style.translate = `${peekX}px ${peekY}px`;
+      requestAnimationFrame(follow);
+    };
+    requestAnimationFrame(follow);
+  }
+}
+
+/* ---------- hero flow field ----------
+   Particles ride a smooth vector field built from summed sines — cheap,
+   dependency-free, and it drifts like ink on paper rather than reading as
+   the usual connected-dots network. The pointer adds a local swirl. */
 const signalCanvas = document.getElementById("signalCanvas");
 
 if (signalCanvas && !reduceMotion.matches) {
-  const context = signalCanvas.getContext("2d");
-  const COUNT = 46;
-  const LINK_DISTANCE = 150;
-  const points = Array.from({ length: COUNT }, (_, index) => ({
-    x: Math.random(), y: Math.random(),
-    vx: (Math.random() - .5) * .0002, vy: (Math.random() - .5) * .0002,
-    size: index % 7 === 0 ? 2.6 : 1
+  const context = signalCanvas.getContext("2d", { alpha: true });
+  const COUNT = 340;
+  const SPEED = 1.6;
+
+  let width = 0;
+  let height = 0;
+  let paper = "#f5f2eb";
+  let inkStroke = "rgba(23,23,20,.34)";
+  let accentStroke = "rgba(217,93,63,.5)";
+
+  const readPalette = () => {
+    const styles = getComputedStyle(document.documentElement);
+    paper = styles.getPropertyValue("--paper").trim() || "#f5f2eb";
+    const dark = root.classList.contains("dark");
+    inkStroke = dark ? "rgba(244,240,232,.20)" : "rgba(23,23,20,.17)";
+    accentStroke = dark ? "rgba(255,154,118,.5)" : "rgba(217,93,63,.42)";
+  };
+
+  const particles = Array.from({ length: COUNT }, () => ({
+    x: Math.random(),
+    y: Math.random(),
+    life: Math.random() * 220,
+    accent: Math.random() < .07
   }));
 
-  const pointer = { x: -1, y: -1, active: false };
+  const pointer = { x: 0, y: 0, active: false };
 
-  signalCanvas.parentElement.parentElement.addEventListener("pointermove", (event) => {
+  const resize = () => {
+    const ratio = Math.min(devicePixelRatio || 1, 2);
+    width = signalCanvas.offsetWidth;
+    height = signalCanvas.offsetHeight;
+    signalCanvas.width = width * ratio;
+    signalCanvas.height = height * ratio;
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    context.fillStyle = paper;
+    context.fillRect(0, 0, width, height);
+  };
+
+  // Smooth, seamless-enough angle field. Not true Perlin noise, but the
+  // three-sine sum has no visible tiling at this scale and costs almost nothing.
+  // Low frequencies on purpose: neighbouring particles must agree on a
+  // direction, otherwise the field scatters into dust instead of streamlines.
+  const fieldAngle = (x, y, t) =>
+    (Math.sin(x * 1.6 + t) + Math.sin(y * 1.3 - t * .7) + Math.sin((x + y) * 1.05 + t * .4)) * 1.7;
+
+  const hero = signalCanvas.closest(".hero");
+
+  hero?.addEventListener("pointermove", (event) => {
     const box = signalCanvas.getBoundingClientRect();
     pointer.x = (event.clientX - box.left) / box.width;
     pointer.y = (event.clientY - box.top) / box.height;
     pointer.active = true;
   }, { passive: true });
 
-  signalCanvas.parentElement.parentElement.addEventListener("pointerleave", () => { pointer.active = false; });
-
-  const resize = () => {
-    const ratio = Math.min(devicePixelRatio || 1, 2);
-    signalCanvas.width = signalCanvas.offsetWidth * ratio;
-    signalCanvas.height = signalCanvas.offsetHeight * ratio;
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
-  };
+  hero?.addEventListener("pointerleave", () => { pointer.active = false; });
 
   let running = true;
+  let time = 0;
 
   const draw = () => {
     if (!running) return;
 
-    const width = signalCanvas.offsetWidth;
-    const height = signalCanvas.offsetHeight;
-    const dark = root.classList.contains("dark");
-    const ink = dark ? "244,240,232" : "23,23,20";
+    time += .0016;
 
-    context.clearRect(0, 0, width, height);
+    // Fade the previous frame toward the paper colour to leave soft trails.
+    context.globalAlpha = .013;
+    context.fillStyle = paper;
+    context.fillRect(0, 0, width, height);
+    context.globalAlpha = 1;
 
-    points.forEach((point) => {
-      point.x += point.vx;
-      point.y += point.vy;
+    context.lineWidth = .75;
+    context.beginPath();
+    context.strokeStyle = inkStroke;
 
-      // Push away from the pointer, then drift back on its own.
+    let accentPath = null;
+
+    particles.forEach((particle) => {
+      let angle = fieldAngle(particle.x, particle.y, time);
+
+      // Swirl the field around the pointer instead of simply repelling.
       if (pointer.active) {
-        const dx = (point.x - pointer.x) * width;
-        const dy = (point.y - pointer.y) * height;
+        const dx = particle.x - pointer.x;
+        const dy = particle.y - pointer.y;
         const distance = Math.hypot(dx, dy);
-        if (distance < 130 && distance > 0) {
-          const push = (1 - distance / 130) * .0022;
-          point.x += (dx / distance) * push;
-          point.y += (dy / distance) * push;
+        if (distance < .18) {
+          const strength = (1 - distance / .18) * 2.6;
+          angle += Math.atan2(dy, dx) * strength;
         }
       }
 
-      if (point.x < .02 || point.x > .98) point.vx *= -1;
-      if (point.y < .04 || point.y > .96) point.vy *= -1;
-      point.x = Math.min(Math.max(point.x, .02), .98);
-      point.y = Math.min(Math.max(point.y, .04), .96);
+      const nx = particle.x + (Math.cos(angle) * SPEED) / width;
+      const ny = particle.y + (Math.sin(angle) * SPEED) / height;
+
+      if (particle.accent) {
+        if (!accentPath) accentPath = new Path2D();
+        accentPath.moveTo(particle.x * width, particle.y * height);
+        accentPath.lineTo(nx * width, ny * height);
+      } else {
+        context.moveTo(particle.x * width, particle.y * height);
+        context.lineTo(nx * width, ny * height);
+      }
+
+      particle.x = nx;
+      particle.y = ny;
+
+      // Respawn when a particle leaves the canvas or outlives its lifetime,
+      // which keeps the field from collapsing into a few attractor lines.
+      if (particle.life-- < 0 || particle.x < 0 || particle.x > 1 || particle.y < 0 || particle.y > 1) {
+        particle.x = Math.random();
+        particle.y = Math.random();
+        particle.life = 120 + Math.random() * 220;
+      }
     });
 
-    for (let i = 0; i < points.length; i++) {
-      const point = points[i];
+    context.stroke();
 
-      for (let j = i + 1; j < points.length; j++) {
-        const peer = points[j];
-        const dx = (point.x - peer.x) * width;
-        const dy = (point.y - peer.y) * height;
-        const distance = Math.hypot(dx, dy);
-        if (distance >= LINK_DISTANCE) continue;
-
-        context.beginPath();
-        context.strokeStyle = `rgba(${ink}, ${.13 * (1 - distance / LINK_DISTANCE)})`;
-        context.lineWidth = .7;
-        context.moveTo(point.x * width, point.y * height);
-        context.lineTo(peer.x * width, peer.y * height);
-        context.stroke();
-      }
-
-      // Thread a brighter line from the pointer to whatever is near it.
-      if (pointer.active) {
-        const dx = (point.x - pointer.x) * width;
-        const dy = (point.y - pointer.y) * height;
-        const distance = Math.hypot(dx, dy);
-        if (distance < LINK_DISTANCE) {
-          context.beginPath();
-          context.strokeStyle = `rgba(217,93,63, ${.4 * (1 - distance / LINK_DISTANCE)})`;
-          context.lineWidth = .9;
-          context.moveTo(pointer.x * width, pointer.y * height);
-          context.lineTo(point.x * width, point.y * height);
-          context.stroke();
-        }
-      }
-
-      context.beginPath();
-      context.fillStyle = point.size > 1 ? "#e47f4f" : `rgba(${ink},.45)`;
-      context.arc(point.x * width, point.y * height, point.size, 0, Math.PI * 2);
-      context.fill();
+    if (accentPath) {
+      context.strokeStyle = accentStroke;
+      context.lineWidth = 1.1;
+      context.stroke(accentPath);
     }
 
     requestAnimationFrame(draw);
   };
 
+  readPalette();
   resize();
   addEventListener("resize", resize, { passive: true });
   requestAnimationFrame(draw);
+
+  // The trail colour is baked into the canvas, so a theme flip needs a repaint.
+  new MutationObserver(() => { readPalette(); resize(); })
+    .observe(root, { attributes: true, attributeFilter: ["class"] });
 
   // Stop burning frames once the hero is off screen or the tab is hidden.
   new IntersectionObserver(([entry]) => {
