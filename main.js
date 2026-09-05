@@ -572,29 +572,43 @@ const signalCanvas = document.getElementById("signalCanvas");
 
 if (signalCanvas && !reduceMotion.matches) {
   const context = signalCanvas.getContext("2d", { alpha: true });
-  const COUNT = 340;
+
+  // Deliberately few plain strokes: they are the ones that read as pale
+  // streaks across the cream and they crowd the type when there are many.
+  // The coloured ones carry the effect, so they keep their share.
+  const INK_COUNT = 76;
+  const CORAL_COUNT = 34;
+  const BLUE_COUNT = 30;
   const SPEED = 1.6;
 
   let width = 0;
   let height = 0;
   let paper = "#f5f2eb";
-  let inkStroke = "rgba(23,23,20,.34)";
-  let accentStroke = "rgba(217,93,63,.5)";
+  let inkStroke = "rgba(23,23,20,.17)";
+  let coralStroke = "rgba(217,93,63,.42)";
+  let blueStroke = "rgba(63,112,212,.36)";
 
   const readPalette = () => {
     const styles = getComputedStyle(document.documentElement);
     paper = styles.getPropertyValue("--paper").trim() || "#f5f2eb";
     const dark = root.classList.contains("dark");
-    inkStroke = dark ? "rgba(244,240,232,.20)" : "rgba(23,23,20,.17)";
-    accentStroke = dark ? "rgba(255,154,118,.5)" : "rgba(217,93,63,.42)";
+    inkStroke = dark ? "rgba(244,240,232,.16)" : "rgba(23,23,20,.14)";
+    coralStroke = dark ? "rgba(255,154,118,.58)" : "rgba(217,93,63,.5)";
+    blueStroke = dark ? "rgba(142,175,255,.5)" : "rgba(63,112,212,.44)";
   };
 
-  const particles = Array.from({ length: COUNT }, () => ({
+  const makeParticles = (n, tone) => Array.from({ length: n }, () => ({
     x: Math.random(),
     y: Math.random(),
     life: Math.random() * 220,
-    accent: Math.random() < .07
+    tone
   }));
+
+  const particles = [
+    ...makeParticles(INK_COUNT, "ink"),
+    ...makeParticles(CORAL_COUNT, "coral"),
+    ...makeParticles(BLUE_COUNT, "blue")
+  ];
 
   const pointer = { x: 0, y: 0, active: false };
 
@@ -641,11 +655,9 @@ if (signalCanvas && !reduceMotion.matches) {
     context.fillRect(0, 0, width, height);
     context.globalAlpha = 1;
 
-    context.lineWidth = .75;
-    context.beginPath();
-    context.strokeStyle = inkStroke;
-
-    let accentPath = null;
+    const inkPath = new Path2D();
+    const coralPath = new Path2D();
+    const bluePath = new Path2D();
 
     particles.forEach((particle) => {
       let angle = fieldAngle(particle.x, particle.y, time);
@@ -664,14 +676,11 @@ if (signalCanvas && !reduceMotion.matches) {
       const nx = particle.x + (Math.cos(angle) * SPEED) / width;
       const ny = particle.y + (Math.sin(angle) * SPEED) / height;
 
-      if (particle.accent) {
-        if (!accentPath) accentPath = new Path2D();
-        accentPath.moveTo(particle.x * width, particle.y * height);
-        accentPath.lineTo(nx * width, ny * height);
-      } else {
-        context.moveTo(particle.x * width, particle.y * height);
-        context.lineTo(nx * width, ny * height);
-      }
+      const path = particle.tone === "coral" ? coralPath
+                 : particle.tone === "blue" ? bluePath
+                 : inkPath;
+      path.moveTo(particle.x * width, particle.y * height);
+      path.lineTo(nx * width, ny * height);
 
       particle.x = nx;
       particle.y = ny;
@@ -685,13 +694,18 @@ if (signalCanvas && !reduceMotion.matches) {
       }
     });
 
-    context.stroke();
+    context.lineWidth = .75;
+    context.strokeStyle = inkStroke;
+    context.stroke(inkPath);
 
-    if (accentPath) {
-      context.strokeStyle = accentStroke;
-      context.lineWidth = 1.1;
-      context.stroke(accentPath);
-    }
+    // The coloured strokes sit slightly heavier so a smaller number of them
+    // still carries the field.
+    context.lineWidth = 1.15;
+    context.strokeStyle = coralStroke;
+    context.stroke(coralPath);
+
+    context.strokeStyle = blueStroke;
+    context.stroke(bluePath);
 
     requestAnimationFrame(draw);
   };
