@@ -8,13 +8,13 @@
 <meta name="theme-color" content="#f5f2eb" />
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Krishna Ganga · AI engineer" />
-<meta property="og:description" content="Selected work: rice, Moksh, and published CNN research." />
+<meta property="og:description" content="Selected work: rice, Moksh, and MechaClips." />
 <meta name="twitter:card" content="summary_large_image" />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='25' font-size='24' font-family='Georgia,serif' font-weight='600'>K</text></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,600&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=27">
+<link rel="stylesheet" href="style.css?v=30">
 </head>
 <body>
 
@@ -69,7 +69,7 @@
     <ol class="hero__index" id="heroIndex">
       <li><button type="button" data-jump="rice" data-peek="assets/opt/rice-otter.jpg"><i>01</i><b>rice</b><em>AI food log</em><u aria-hidden="true">↗</u></button></li>
       <li><button type="button" data-jump="moksh" data-peek="assets/opt/moksh-krishna.jpg"><i>02</i><b>Moksh</b><em>Gita, reimagined</em><u aria-hidden="true">↗</u></button></li>
-      <li><button type="button" data-jump="research" data-peek="assets/opt/falls.jpg"><i>03</i><b>CNN research</b><em>Published, ICSTE</em><u aria-hidden="true">↗</u></button></li>
+      <li><button type="button" data-jump="mecha" data-peek="assets/opt/tunnel.jpg"><i>03</i><b>MechaClips</b><em>Edge clip intake</em><u aria-hidden="true">↗</u></button></li>
     </ol>
   </div>
 
@@ -114,6 +114,7 @@
             data-description="A contemporary, contemplative reading experience for the Bhagavad Gita, designed to bring ancient text closer to everyday life."
             data-meta="iOS,Typography,Reading UX,Sanskrit corpus"
             data-app="assets/mockup/moksh-phone.html"
+            data-frame="self"
             data-web="https://moksh.site/"
             style="--image:url('assets/opt/moksh-krishna.jpg')">
       <span class="project__top"><span class="project__index">02 / APP_002</span><span class="project__year">2025</span></span>
@@ -121,17 +122,17 @@
       <span class="project__bottom"><span>iOS · Web · Reading UX</span><span class="project__open">Inspect <b>↗</b></span></span>
     </button>
 
-    <button class="project project--research" type="button" data-key="research"
-            data-title="CNN Research"
-            data-type="Published research · ICSTE · 2024"
-            data-description="Published work exploring convolutional neural networks and their practical potential."
-            data-meta="CNNs,PyTorch,ICSTE 2024,Peer reviewed"
-            data-app=""
-            data-web=""
-            style="--image:url('assets/opt/falls.jpg')">
-      <span class="project__top"><span class="project__index">03 / R&amp;D_001</span><span class="project__year">2024</span></span>
-      <span class="project__title"><em>CNN research</em><small>Published at ICSTE</small></span>
-      <span class="project__bottom"><span>Neural nets · ICSTE</span><span class="project__open">Inspect <b>↗</b></span></span>
+    <button class="project project--mecha" type="button" data-key="mecha"
+            data-title="MechaClips"
+            data-type="Edge service · Live · 2025"
+            data-description="A clip intake service running at the edge. Viewers drop a 100 MB video and it streams straight into object storage without ever buffering in memory."
+            data-meta="Cloudflare Workers,R2 storage,Streaming uploads,Wrangler"
+            data-app="assets/mockup/mechaclips/index.html"
+            data-web="https://submit.mechaclips.workers.dev"
+            style="--image:url('assets/opt/tunnel.jpg')">
+      <span class="project__top"><span class="project__index">03 / SVC_001</span><span class="project__year">2025</span></span>
+      <span class="project__title"><em>MechaClips</em><small>Clip intake at the edge</small></span>
+      <span class="project__bottom"><span>Workers · R2 · Streaming</span><span class="project__open">Inspect <b>↗</b></span></span>
     </button>
   </div>
 </section>
@@ -232,6 +233,6 @@
   </div>
 </div>
 
-<script src="main.js?v=29"></script>
+<script src="main.js?v=30"></script>
 </body>
 </html>

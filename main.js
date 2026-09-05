@@ -319,6 +319,8 @@ function openReveal(project) {
   const appSrc = project.dataset.app;
   const webSrc = project.dataset.web;
   const isHtml = /\.html?($|\?|#)/i.test(appSrc);
+  // Some mockups draw their own handset; the rest sit inside the frame here.
+  const selfFramed = project.dataset.frame === "self";
 
   revealTitle.innerHTML = `<em>${project.dataset.title}</em>`;
   revealEyebrow.textContent = project.dataset.type;
@@ -339,7 +341,8 @@ function openReveal(project) {
   revealPlaceholder.hidden = hasVisual;
 
   if (hasVisual) {
-    revealDuo.classList.toggle("html-mockup", isHtml);
+    revealDuo.classList.toggle("html-mockup", isHtml && selfFramed);
+    revealDuo.classList.toggle("framed-mockup", isHtml && !selfFramed);
     revealApp.hidden = isHtml;
     revealAppFrame.hidden = !isHtml;
     if (isHtml) revealAppFrame.src = appSrc;

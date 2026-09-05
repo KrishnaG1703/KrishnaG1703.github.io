@@ -625,7 +625,7 @@ a { color: inherit; text-decoration: none; }
 /* fanned resting positions */
 .project--rice     { transform: translateX(-52%) rotate(-9deg); z-index: 1; }
 .project--moksh    { transform: translateY(-10px); z-index: 3; }
-.project--research { transform: translateX(52%) rotate(9deg); z-index: 2; }
+.project--mecha { transform: translateX(52%) rotate(9deg); z-index: 2; }
 
 .project:hover {
   z-index: 6;
@@ -639,7 +639,7 @@ a { color: inherit; text-decoration: none; }
 
 .project--rice     { background: color-mix(in srgb, #74a96b 15%, var(--card)); }
 .project--moksh    { background: color-mix(in srgb, #d69b42 15%, var(--card)); }
-.project--research { background: color-mix(in srgb, #5f83cf 15%, var(--card)); }
+.project--mecha { background: color-mix(in srgb, #5f83cf 15%, var(--card)); }
 
 .project::before {
   content: "";
@@ -688,11 +688,11 @@ a { color: inherit; text-decoration: none; }
 
 .project--rice     .project__title em { color: #34702f; }
 .project--moksh    .project__title em { color: #945d17; }
-.project--research .project__title em { color: #33569f; }
+.project--mecha .project__title em { color: #33569f; }
 
 .dark .project--rice     .project__title em { color: #a8e69b; }
 .dark .project--moksh    .project__title em { color: #f2c26e; }
-.dark .project--research .project__title em { color: #9cb9ff; }
+.dark .project--mecha .project__title em { color: #9cb9ff; }
 
 .project:hover .project__title em { color: #fff; }
 
@@ -1030,6 +1030,17 @@ a { color: inherit; text-decoration: none; }
   width: var(--embed-w);
   height: var(--embed-h);
   transform: scale(var(--embed-scale));
+  transform-origin: top left;
+}
+
+/* An html mockup with no handset of its own renders at its natural width
+   inside the device frame and is scaled down to the screen. */
+.duo.framed-mockup .ph__screen { overflow: hidden; }
+
+.duo.framed-mockup .ph__screen iframe {
+  width: var(--frame-w);
+  height: calc(var(--screen-h) * var(--frame-w) / var(--screen-w));
+  transform: scale(calc(var(--screen-w) / var(--frame-w)));
   transform-origin: top left;
 }
 
