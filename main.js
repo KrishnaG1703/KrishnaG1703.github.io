@@ -89,7 +89,6 @@ themeToggle.addEventListener("click", (event) => {
 const nav = document.getElementById("nav");
 const progress = document.getElementById("progress");
 let lastScroll = 0;
-let scrollVelocity = 0;
 
 // Reading scrollHeight inside the scroll handler forced a full layout on every
 // single scroll event. It only changes when the page does, so it is measured
@@ -127,7 +126,6 @@ const onScrollFrame = () => {
     nav.classList.toggle("is-hidden", hidden);
   }
 
-  scrollVelocity = Math.min(Math.abs(y - lastScroll) / 14, 3);
   lastScroll = y;
 };
 
@@ -266,79 +264,9 @@ if (clock) {
   setInterval(tick, 1000);
 }
 
-/* ---------- marquee ----------
-   Driven by one custom property per frame instead of a CSS animation.
-   Rewriting animationDuration restarts the animation, so the old version
-   jumped on every speed change and again when hover released the pause. */
-const marqueeTrack = document.getElementById("marqueeTrack");
-
-if (marqueeTrack) {
-  const marquee = marqueeTrack.parentElement;
-  marquee.append(marqueeTrack.cloneNode(true));
-
-  if (!reduceMotion.matches) {
-    const BASE = 46;      // pixels per second at rest
-    const BOOST = 130;    // extra pixels per second at full scroll velocity
-
-    let offset = 0;
-    let span = 0;
-    let ease = 1;         // 0 while hovered, eased so there is no jump
-    let target = 1;
-    let last = performance.now();
-    let running = false;
-
-    const tracks = [...marquee.querySelectorAll(".marquee__track")];
-    const measure = () => { span = marqueeTrack.offsetWidth; };
-    measure();
-    addEventListener("resize", measure, { passive: true });
-
-    marquee.addEventListener("pointerenter", () => { target = 0; });
-    marquee.addEventListener("pointerleave", () => { target = 1; });
-
-    const frame = (now) => {
-      if (!running) return;
-
-      // Clamp dt so a long stall cannot teleport the strip.
-      const dt = Math.min((now - last) / 1000, .05);
-      last = now;
-
-      scrollVelocity *= .93;
-      ease += (target - ease) * .1;
-      offset -= (BASE + scrollVelocity * BOOST) * ease * dt;
-
-      if (span > 0) {
-        // Wrap by exactly one track width so the seam never shows.
-        while (offset <= -span) offset += span;
-        while (offset > 0) offset -= span;
-      }
-
-      const shift = `translate3d(${offset.toFixed(2)}px,0,0)`;
-      for (const track of tracks) track.style.transform = shift;
-
-      requestAnimationFrame(frame);
-    };
-
-    const start = () => {
-      if (running) return;
-      running = true;
-      last = performance.now();
-      requestAnimationFrame(frame);
-    };
-
-    const stop = () => { running = false; };
-
-    // Only animate while the strip is actually on screen and the tab is open.
-    new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !document.hidden) start();
-      else stop();
-    }).observe(marquee);
-
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) stop();
-      else if (marquee.getBoundingClientRect().top < innerHeight) start();
-    });
-  }
-}
+/* The marquee is a pure CSS animation now: see .marquee__track. Driving it
+   from script meant it shared the main thread with scrolling, which is what
+   made it stutter. Nothing here touches it. */
 
 /* ---------- magnetic buttons ---------- */
 if (finePointer.matches && !reduceMotion.matches) {
@@ -602,32 +530,35 @@ if (heroIndex) {
 }
 
 /* ---------- hero flow field ----------
-   Particles ride a smooth vector field built from summed sines — cheap,
-   dependency-free, and it drifts like ink on paper rather than reading as
-   the usual connected-dots network. The pointer adds a local swirl. */
+   Particles ride a smooth vector field built from summed sines and leave ink
+   trails. It paints itself in on load, reaches its settled state, and then
+   stops for good.
+
+   It used to animate forever, which meant a canvas repaint competing with the
+   page for the main thread on every single frame, including while scrolling.
+   The motion is barely perceptible once settled, so there is nothing to gain
+   from keeping it running and a smooth scroll to lose. */
 const signalCanvas = document.getElementById("signalCanvas");
 
 if (signalCanvas && !reduceMotion.matches) {
   const context = signalCanvas.getContext("2d", { alpha: true });
 
-  // Deliberately few plain strokes: they are the ones that read as pale
-  // streaks across the cream and they crowd the type when there are many.
-  // The coloured ones carry the effect, so they keep their share.
   const INK_COUNT = 76;
   const CORAL_COUNT = 34;
   const BLUE_COUNT = 30;
   const SPEED = 1.6;
+  const SETTLE_FRAMES = 430;
 
   let width = 0;
   let height = 0;
-  let paper = "#f5f2eb";
-  let inkStroke = "rgba(23,23,20,.17)";
-  let coralStroke = "rgba(217,93,63,.42)";
-  let blueStroke = "rgba(63,112,212,.36)";
+  let paper = "#f7f0dd";
+  let inkStroke = "rgba(23,23,20,.14)";
+  let coralStroke = "rgba(217,93,63,.5)";
+  let blueStroke = "rgba(63,112,212,.44)";
 
   const readPalette = () => {
     const styles = getComputedStyle(document.documentElement);
-    paper = styles.getPropertyValue("--paper").trim() || "#f5f2eb";
+    paper = styles.getPropertyValue("--paper").trim() || "#f7f0dd";
     const dark = root.classList.contains("dark");
     inkStroke = dark ? "rgba(244,240,232,.16)" : "rgba(23,23,20,.14)";
     coralStroke = dark ? "rgba(255,154,118,.58)" : "rgba(217,93,63,.5)";
@@ -641,19 +572,11 @@ if (signalCanvas && !reduceMotion.matches) {
     tone
   }));
 
-  const particles = [
-    ...makeParticles(INK_COUNT, "ink"),
-    ...makeParticles(CORAL_COUNT, "coral"),
-    ...makeParticles(BLUE_COUNT, "blue")
-  ];
-
-  const pointer = { x: 0, y: 0, active: false };
+  let particles = [];
 
   const resize = () => {
-    // The field is a soft, diffuse texture and does not need a full device
-    // pixel ratio backing store. At 2x on a retina laptop this canvas cleared
-    // and repainted well over five megapixels every frame, which is what made
-    // scrolling stutter on screens larger than the one it was tuned on.
+    // A soft, diffuse texture does not need a full device pixel ratio backing
+    // store, and the fill cost scales with every one of those pixels.
     const ratio = Math.min(devicePixelRatio || 1, 1.25);
     width = signalCanvas.offsetWidth;
     height = signalCanvas.offsetHeight;
@@ -664,30 +587,17 @@ if (signalCanvas && !reduceMotion.matches) {
     context.fillRect(0, 0, width, height);
   };
 
-  // Smooth, seamless-enough angle field. Not true Perlin noise, but the
-  // three-sine sum has no visible tiling at this scale and costs almost nothing.
   // Low frequencies on purpose: neighbouring particles must agree on a
   // direction, otherwise the field scatters into dust instead of streamlines.
   const fieldAngle = (x, y, t) =>
     (Math.sin(x * 1.6 + t) + Math.sin(y * 1.3 - t * .7) + Math.sin((x + y) * 1.05 + t * .4)) * 1.7;
 
-  const hero = signalCanvas.closest(".hero");
-
-  hero?.addEventListener("pointermove", (event) => {
-    const box = signalCanvas.getBoundingClientRect();
-    pointer.x = (event.clientX - box.left) / box.width;
-    pointer.y = (event.clientY - box.top) / box.height;
-    pointer.active = true;
-  }, { passive: true });
-
-  hero?.addEventListener("pointerleave", () => { pointer.active = false; });
-
-  let running = true;
+  let frames = 0;
   let time = 0;
+  let queued = false;
 
-  const draw = () => {
-    if (!running) return;
-
+  const step = () => {
+    queued = false;
     time += .0016;
 
     // Fade the previous frame toward the paper colour to leave soft trails.
@@ -700,20 +610,8 @@ if (signalCanvas && !reduceMotion.matches) {
     const coralPath = new Path2D();
     const bluePath = new Path2D();
 
-    particles.forEach((particle) => {
-      let angle = fieldAngle(particle.x, particle.y, time);
-
-      // Swirl the field around the pointer instead of simply repelling.
-      if (pointer.active) {
-        const dx = particle.x - pointer.x;
-        const dy = particle.y - pointer.y;
-        const distance = Math.hypot(dx, dy);
-        if (distance < .18) {
-          const strength = (1 - distance / .18) * 2.6;
-          angle += Math.atan2(dy, dx) * strength;
-        }
-      }
-
+    for (const particle of particles) {
+      const angle = fieldAngle(particle.x, particle.y, time);
       const nx = particle.x + (Math.cos(angle) * SPEED) / width;
       const ny = particle.y + (Math.sin(angle) * SPEED) / height;
 
@@ -733,7 +631,7 @@ if (signalCanvas && !reduceMotion.matches) {
         particle.y = Math.random();
         particle.life = 120 + Math.random() * 220;
       }
-    });
+    }
 
     context.lineWidth = .95;
     context.strokeStyle = inkStroke;
@@ -748,30 +646,37 @@ if (signalCanvas && !reduceMotion.matches) {
     context.strokeStyle = blueStroke;
     context.stroke(bluePath);
 
-    requestAnimationFrame(draw);
+    if (++frames < SETTLE_FRAMES && !queued) {
+      queued = true;
+      requestAnimationFrame(step);
+    }
   };
 
-  readPalette();
-  resize();
-  addEventListener("resize", resize, { passive: true });
-  requestAnimationFrame(draw);
+  const render = () => {
+    readPalette();
+    resize();
+    particles = [
+      ...makeParticles(INK_COUNT, "ink"),
+      ...makeParticles(CORAL_COUNT, "coral"),
+      ...makeParticles(BLUE_COUNT, "blue")
+    ];
+    frames = 0;
+    time = 0;
+    if (!queued) {
+      queued = true;
+      requestAnimationFrame(step);
+    }
+  };
 
-  // The trail colour is baked into the canvas, so a theme flip needs a repaint.
-  new MutationObserver(() => { readPalette(); resize(); })
-    .observe(root, { attributes: true, attributeFilter: ["class"] });
+  render();
 
-  // Stop well before the hero fully leaves. By the time a tenth of the field
-  // is left on screen it is almost entirely behind the mask anyway, and this
-  // is exactly when the marquee below it is coming into view and wants the
-  // frame budget.
-  new IntersectionObserver(([entry]) => {
-    const live = entry.isIntersecting && entry.intersectionRatio > .1;
-    if (live && !running) { running = true; requestAnimationFrame(draw); }
-    else if (!live) running = false;
-  }, { threshold: [0, .1, .25] }).observe(signalCanvas);
+  // Repaint only when the canvas it is painted into actually changes.
+  let resizeTimer = 0;
+  addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(render, 220);
+  }, { passive: true });
 
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) running = false;
-    else if (!running) { running = true; requestAnimationFrame(draw); }
-  });
+  // The trail colour is baked into the pixels, so a theme flip needs a repaint.
+  new MutationObserver(render).observe(root, { attributes: true, attributeFilter: ["class"] });
 }
