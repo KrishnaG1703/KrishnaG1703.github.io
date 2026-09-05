@@ -5,124 +5,200 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Krishna Ganga — Software engineer & AI researcher</title>
 <meta name="description" content="The selected work of Krishna Ganga — software engineer and published AI researcher in Bangalore." />
+<meta name="theme-color" content="#f5f2eb" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Krishna Ganga — Software engineer & AI researcher" />
+<meta property="og:description" content="Selected work: rice, Moksh, and published CNN research." />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='25' font-size='24' font-family='Georgia,serif' font-weight='600'>K</text></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=10">
+<link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
 
-<header class="nav">
+<div class="progress" id="progress" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+<div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
   <a class="nav__brand" href="#top" aria-label="Back to top">KG<span>.</span></a>
   <nav class="nav__links">
     <a href="#work">Work</a>
+    <a href="#stack">Stack</a>
+    <a href="#about">About</a>
     <a href="#contact">Contact</a>
   </nav>
   <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark theme" aria-pressed="false"><span></span> Theme</button>
 </header>
 
 <main id="top">
+
 <section class="hero">
   <div class="hero__system" aria-hidden="true">
     <canvas class="hero__canvas" id="signalCanvas"></canvas>
     <span class="hero__signal">K.G / BUILDING IN PUBLIC</span>
     <span class="hero__coordinate">12.9716° N / 77.5946° E</span>
   </div>
-  <p class="eyebrow hero__eyebrow">Portfolio · 2026</p>
-  <h1 class="hero__name">Krishna<br><em>Ganga</em></h1>
+
+  <p class="eyebrow" data-scramble>Portfolio · 2026</p>
+
+  <h1 class="hero__name">
+    <span class="line"><span>Krishna</span></span>
+    <span class="line"><span><em>Ganga</em></span></span>
+  </h1>
+
   <div class="hero__bottom">
     <p class="hero__lede"><span class="text-coral">Software engineer</span> &amp; published <span class="text-blue">AI researcher</span> designing useful, considered <span class="text-green">digital products.</span></p>
-    <a class="round-link" href="#work">Selected work <span aria-hidden="true">↓</span></a>
+    <a class="round-link" href="#work" data-magnetic>Selected work <span aria-hidden="true">↓</span></a>
   </div>
-  <p class="hero__location"><span class="text-coral">Bangalore, India</span> <span>•</span> Currently at EY</p>
+
+  <p class="hero__location"><span class="text-coral">Bangalore, India</span> <span>•</span> Currently at EY <span>•</span> <span id="clock">--:--:--</span> IST</p>
+  <div class="hero__scroll" aria-hidden="true"></div>
 </section>
 
-<!-- STACKED DECK -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track" id="marqueeTrack">
+    <span>SwiftUI</span><i>◆</i><span>Computer vision</span><i>◆</i><span>Neural networks</span><i>◆</i><span>Design systems</span><i>◆</i><span>Cloudflare Workers</span><i>◆</i><span>Interface craft</span><i>◆</i>
+  </div>
+</div>
+
+<!-- WORK -->
 <section class="work" id="work">
-  <div class="terminal-head">
-    <div>
-      <p class="eyebrow">01 / Selected work</p>
-      <h2>Things I’ve<br><em>shipped.</em></h2>
+  <div class="section-head" data-reveal>
+    <p class="eyebrow">01 / Selected work</p>
+    <h2>Things I’ve<br><em>shipped.</em></h2>
+  </div>
+
+  <p class="work-intro" data-reveal><span class="text-coral">Product engineering,</span> <span class="text-blue">applied AI,</span> and interfaces that make sophisticated things feel <span class="text-green">simple.</span></p>
+
+  <div class="projects" data-reveal-stagger>
+    <button class="project project--rice" type="button"
+            data-title="rice"
+            data-type="iOS app · Web app · 2025"
+            data-description="An AI-assisted food log that makes the daily ritual of eating feel lighter, faster, and more human."
+            data-meta="SwiftUI,Vision framework,Cloudflare,On-device ML"
+            data-app="assets/screens/home.jpg"
+            data-web="https://rice.mechaclips.workers.dev/"
+            style="--image:url('assets/opt/rice-otter.jpg')">
+      <span class="project__top"><span class="project__index">01 / APP_001</span><span class="project__year">2025</span></span>
+      <span class="project__title"><em>rice</em><small>AI food log</small></span>
+      <span class="project__bottom"><span>SwiftUI · Vision · Cloud</span><span class="project__open">Inspect <b>↗</b></span></span>
+    </button>
+
+    <button class="project project--moksh" type="button"
+            data-title="Moksh"
+            data-type="iOS app · Web app · 2025"
+            data-description="A contemporary, contemplative reading experience for the Bhagavad Gita—designed to bring ancient text closer to everyday life."
+            data-meta="iOS,Typography,Reading UX,Sanskrit corpus"
+            data-app="assets/mockup/moksh-gita-reader-mockup.html"
+            data-web="https://moksh.site/"
+            style="--image:url('assets/opt/moksh-krishna.jpg')">
+      <span class="project__top"><span class="project__index">02 / APP_002</span><span class="project__year">2025</span></span>
+      <span class="project__title"><em>Moksh</em><small>Bhagavad Gita, reimagined</small></span>
+      <span class="project__bottom"><span>iOS · Web · Reading UX</span><span class="project__open">Inspect <b>↗</b></span></span>
+    </button>
+
+    <button class="project project--research" type="button"
+            data-title="CNN Research"
+            data-type="Published research · ICSTE · 2024"
+            data-description="Published work exploring convolutional neural networks and their practical potential."
+            data-meta="CNNs,PyTorch,ICSTE 2024,Peer reviewed"
+            data-app=""
+            data-web=""
+            style="--image:url('assets/opt/falls.jpg')">
+      <span class="project__top"><span class="project__index">03 / R&amp;D_001</span><span class="project__year">2024</span></span>
+      <span class="project__title"><em>CNN research</em><small>Published at ICSTE</small></span>
+      <span class="project__bottom"><span>Neural nets · ICSTE</span><span class="project__open">Inspect <b>↗</b></span></span>
+    </button>
+  </div>
+</section>
+
+<!-- STACK -->
+<section class="stack" id="stack">
+  <div class="section-head" data-reveal>
+    <p class="eyebrow">02 / How I work</p>
+    <h2>The <em>toolkit.</em></h2>
+  </div>
+
+  <div class="stack__grid" data-reveal-stagger style="margin-top:58px">
+    <div class="stack__cell">
+      <p class="eyebrow">Product</p>
+      <h3>Ship, then sharpen</h3>
+      <p>Small releases over big reveals. Every interface earns its complexity or gets cut.</p>
+    </div>
+    <div class="stack__cell">
+      <p class="eyebrow">Applied AI</p>
+      <h3>Models with a job</h3>
+      <p>Vision and language models wired into products where they remove real friction, not as decoration.</p>
+    </div>
+    <div class="stack__cell">
+      <p class="eyebrow">Craft</p>
+      <h3>Details compound</h3>
+      <p>Typography, motion, and timing carry as much of the experience as the architecture behind it.</p>
+    </div>
+    <div class="stack__cell">
+      <p class="eyebrow">Research</p>
+      <h3>Read the papers</h3>
+      <p>Published at ICSTE. Practice informed by literature, literature grounded by shipping.</p>
     </div>
   </div>
-  <p class="work-intro"><span class="text-coral">Product engineering,</span> <span class="text-blue">applied AI,</span> and interfaces that make sophisticated things feel <span class="text-green">simple.</span></p>
-  <div class="projects projects--grid">
-      <button class="project project--rice" type="button"
-              data-title="rice"
-              data-type="iOS app · Web app · 2025"
-              data-description="An AI-assisted food log that makes the daily ritual of eating feel lighter, faster, and more human."
-              data-app="assets/screens/home.jpg"
-              data-web="https://rice.mechaclips.workers.dev/"
-              style="--image:url('assets/wallpaper/rice-otter.png')">
-        <span class="project__top"><span class="project__index">01 / APP_001</span><span class="project__year">2025</span></span>
-        <span class="project__title"><em>rice</em><small>AI food log</small></span>
-        <span class="project__bottom"><span>SwiftUI · Vision · Cloud</span><span class="project__open">Inspect <b>↗</b></span></span>
-      </button>
-      <button class="project project--moksh" type="button"
-              data-title="Moksh"
-              data-type="iOS app · Web app · 2025"
-              data-description="A contemporary, contemplative reading experience for the Bhagavad Gita—designed to bring ancient text closer to everyday life."
-              data-app="assets/mockup/moksh-gita-reader-mockup.html"
-              data-app-framed="true"
-              data-web="https://moksh.site/"
-              style="--image:url('assets/wallpaper/moksh-krishna.png')">
-        <span class="project__top"><span class="project__index">02 / APP_002</span><span class="project__year">2025</span></span>
-        <span class="project__title"><em>Moksh</em><small>Bhagavad Gita, reimagined</small></span>
-        <span class="project__bottom"><span>iOS · Web · Reading UX</span><span class="project__open">Inspect <b>↗</b></span></span>
-      </button>
-      <button class="project project--research" type="button"
-              data-title="CNN Research"
-              data-type="Published research · ICSTE · 2024"
-              data-description="Published work exploring convolutional neural networks and their practical potential."
-              data-app=""
-              data-web=""
-              style="--image:url('assets/wallpaper/03-falls.jpg')">
-        <span class="project__top"><span class="project__index">03 / R&D_001</span><span class="project__year">2024</span></span>
-        <span class="project__title"><em>CNN research</em><small>Published at ICSTE</small></span>
-        <span class="project__bottom"><span>Neural nets · ICSTE</span><span class="project__open">Inspect <b>↗</b></span></span>
-      </button>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about__body" data-reveal>
+    <p class="eyebrow">03 / About</p>
+    <p>I build software at the seam between <span class="text-blue">research</span> and <span class="text-coral">product</span> — currently at EY, previously publishing on convolutional neural networks.</p>
+    <p>Outside work I ship my own apps end to end: design, iOS, backend, and the marketing site. <span class="text-green">rice</span> and <span class="text-green">Moksh</span> both started as personal itches.</p>
+  </div>
+
+  <div class="stats" data-reveal>
+    <div class="stat"><span class="stat__num" data-count="4">0</span><span class="stat__label">Shipped products</span></div>
+    <div class="stat"><span class="stat__num" data-count="1">0</span><span class="stat__label">Published papers</span></div>
+    <div class="stat"><span class="stat__num" data-count="6">0</span><span class="stat__label">Years building</span></div>
+    <div class="stat"><span class="stat__num" data-count="100" data-suffix="%">0</span><span class="stat__label">Self-taught craft</span></div>
   </div>
 </section>
+
 </main>
 
-
 <footer class="foot" id="contact">
-  <div class="foot__title">Let's <em>talk</em>.</div>
-  <a class="foot__mail" href="mailto:krishna091718@gmail.com">krishna091718@gmail.com</a>
-  <div class="foot__row"><span>© 2026 Krishna Ganga</span></div>
+  <div class="foot__title" data-reveal>Let's <em>talk</em>.</div>
+  <a class="foot__mail" href="mailto:krishna091718@gmail.com" data-magnetic>krishna091718@gmail.com</a>
+  <div class="foot__row">
+    <span>© 2026 Krishna Ganga</span>
+    <span><a href="https://github.com/KrishnaG1703" target="_blank" rel="noopener">GitHub ↗</a></span>
+    <span>Bangalore · IST</span>
+  </div>
 </footer>
 
 <!-- CARD REVEAL OVERLAY -->
 <div class="reveal" id="reveal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="revealTitle">
   <button class="reveal__close" id="revealClose" aria-label="Close">×</button>
+
   <div class="reveal__hd">
-    <span class="reveal__eyebrow" id="revealEy">Project</span>
+    <span class="eyebrow" id="revealEy">Project</span>
     <h3 class="reveal__title" id="revealTitle"><em>rice</em></h3>
     <p class="reveal__description" id="revealDescription"></p>
+    <div class="reveal__meta" id="revealMeta"></div>
   </div>
+
   <div class="duo" id="revealDuo">
-    <div class="duo__phone">
-      <div class="ph">
-        <div class="ph__notch"></div>
-        <div class="ph__screen">
-          <img id="revealApp" src="" alt="">
-          <iframe id="revealAppFrame" title="app mockup" hidden></iframe>
-        </div>
-      </div>
-    </div>
-    <div class="duo__laptop">
-      <div class="lp">
-        <div class="lp__bar"><span></span><span></span><span></span></div>
-        <div class="lp__screen"><iframe id="revealWeb" src="about:blank" title="site"></iframe></div>
-        <div class="lp__base"></div>
+    <div class="ph">
+      <div class="ph__screen">
+        <img id="revealApp" src="" alt="">
+        <iframe id="revealAppFrame" title="app mockup" hidden></iframe>
       </div>
     </div>
   </div>
+
   <div class="reveal__placeholder" id="revealPlaceholder" hidden>
     Case study coming soon.
   </div>
 </div>
 
-<script src="main.js?v=10"></script>
+<script src="main.js?v=11"></script>
 </body>
 </html>
