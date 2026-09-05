@@ -3,20 +3,28 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Krishna Ganga — Software engineer & AI researcher</title>
-<meta name="description" content="The selected work of Krishna Ganga — software engineer and published AI researcher in Bangalore." />
+<title>Krishna Ganga · AI engineer</title>
+<meta name="description" content="The selected work of Krishna Ganga, an AI engineer building LLM-powered systems in production, based in Bangalore." />
 <meta name="theme-color" content="#f5f2eb" />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Krishna Ganga — Software engineer & AI researcher" />
+<meta property="og:title" content="Krishna Ganga · AI engineer" />
 <meta property="og:description" content="Selected work: rice, Moksh, and published CNN research." />
 <meta name="twitter:card" content="summary_large_image" />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='25' font-size='24' font-family='Georgia,serif' font-weight='600'>K</text></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=13">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,600&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
+
+<noscript><style>.loader{display:none!important}</style></noscript>
+
+<div class="loader" id="loader">
+  <div class="loader__mark">KG</div>
+  <div class="loader__bar"><span id="loaderFill"></span></div>
+  <div class="loader__count"><span id="loaderPct">0</span>%</div>
+</div>
 
 <div class="progress" id="progress" aria-hidden="true"></div>
 
@@ -36,12 +44,11 @@
 <section class="hero">
   <div class="hero__system" aria-hidden="true">
     <canvas class="hero__canvas" id="signalCanvas"></canvas>
-    <span class="hero__coordinate">12.9716° N / 77.5946° E</span>
   </div>
 
   <div class="hero__top">
     <p class="eyebrow" data-scramble>Portfolio · 2026</p>
-    <p class="hero__status"><span class="dot" aria-hidden="true"></span> Bangalore, India — <span id="clock">--:--:--</span> IST</p>
+    <p class="hero__status"><span class="dot" aria-hidden="true"></span> Bangalore, India · <span id="clock">--:--:--</span> IST</p>
   </div>
 
   <h1 class="hero__name">
@@ -51,8 +58,8 @@
 
   <div class="hero__foot">
     <div class="hero__col">
-      <p class="hero__lede"><span class="text-coral">Software engineer</span> &amp; published <span class="text-blue">AI researcher</span> designing useful, considered <span class="text-green">digital products.</span></p>
-      <p class="hero__meta">Currently at EY · Published at ICSTE 2024</p>
+      <p class="hero__lede"><span class="text-coral">AI engineer</span> building and operating <span class="text-blue">LLM-powered systems</span> in production. Agents, RAG pipelines, and the <span class="text-green">backend behind them.</span></p>
+      <p class="hero__meta">Technical Consultant at EY · Published at ICSTE 2024</p>
       <div class="hero__actions">
         <a class="round-link" href="#work" data-magnetic>Selected work <span aria-hidden="true">↓</span></a>
         <a class="round-link round-link--ghost" href="mailto:krishna091718@gmail.com">Get in touch <span aria-hidden="true">↗</span></a>
@@ -86,26 +93,28 @@
 
   <p class="work-intro" data-reveal><span class="text-coral">Product engineering,</span> <span class="text-blue">applied AI,</span> and interfaces that make sophisticated things feel <span class="text-green">simple.</span></p>
 
-  <div class="projects" data-reveal-stagger>
-    <button class="project project--rice" type="button"
+  <p class="deck__hint" data-reveal>Pick a card.</p>
+
+  <div class="deck" id="deck" data-reveal>
+    <button class="project project--rice" type="button" data-key="rice"
             data-title="rice"
-            data-type="iOS app · Web app · 2025"
+            data-type="iOS · Pending release · 2026"
             data-description="An AI-assisted food log that makes the daily ritual of eating feel lighter, faster, and more human."
-            data-meta="SwiftUI,Vision framework,Cloudflare,On-device ML"
+            data-meta="SwiftUI,Combine,Claude API,Supabase,Postgres"
             data-app="assets/screens/home.jpg"
             data-web="https://rice.mechaclips.workers.dev/"
             style="--image:url('assets/opt/rice-otter.jpg')">
-      <span class="project__top"><span class="project__index">01 / APP_001</span><span class="project__year">2025</span></span>
+      <span class="project__top"><span class="project__index">01 / APP_001</span><span class="project__year">2026</span></span>
       <span class="project__title"><em>rice</em><small>AI food log</small></span>
-      <span class="project__bottom"><span>SwiftUI · Vision · Cloud</span><span class="project__open">Inspect <b>↗</b></span></span>
+      <span class="project__bottom"><span>SwiftUI · Claude API · Postgres</span><span class="project__open">Inspect <b>↗</b></span></span>
     </button>
 
-    <button class="project project--moksh" type="button"
+    <button class="project project--moksh" type="button" data-key="moksh"
             data-title="Moksh"
-            data-type="iOS app · Web app · 2025"
-            data-description="A contemporary, contemplative reading experience for the Bhagavad Gita—designed to bring ancient text closer to everyday life."
+            data-type="iOS · App Store · 2025"
+            data-description="A contemporary, contemplative reading experience for the Bhagavad Gita, designed to bring ancient text closer to everyday life."
             data-meta="iOS,Typography,Reading UX,Sanskrit corpus"
-            data-app="assets/mockup/moksh-gita-reader-mockup.html"
+            data-app="assets/mockup/moksh-gita-reader-mockup.html?bare=1"
             data-web="https://moksh.site/"
             style="--image:url('assets/opt/moksh-krishna.jpg')">
       <span class="project__top"><span class="project__index">02 / APP_002</span><span class="project__year">2025</span></span>
@@ -113,7 +122,7 @@
       <span class="project__bottom"><span>iOS · Web · Reading UX</span><span class="project__open">Inspect <b>↗</b></span></span>
     </button>
 
-    <button class="project project--research" type="button"
+    <button class="project project--research" type="button" data-key="research"
             data-title="CNN Research"
             data-type="Published research · ICSTE · 2024"
             data-description="Published work exploring convolutional neural networks and their practical potential."
@@ -173,8 +182,8 @@
 <section class="about" id="about">
   <div class="about__body" data-reveal>
     <p class="eyebrow">03 / About</p>
-    <p>I build and operate <span class="text-blue">LLM-powered systems</span> in production — agents, RAG pipelines, tool integrations, and the backend services behind them.</p>
-    <p>At <span class="text-coral">EY</span> I deliver Guidewire platform work for enterprise insurance clients, where internal agents I built cut roughly three days of manual configuration per rollout. Outside it I ship my own products end to end: <span class="text-green">rice</span> and <span class="text-green">Moksh</span>, design through backend.</p>
+    <p>I build and operate <span class="text-blue">LLM-powered systems</span> in production: agents, RAG pipelines, tool integrations, and the backend services behind them.</p>
+    <p>At <span class="text-coral">EY</span> I deliver Guidewire platform work for enterprise insurance clients, where internal agents I built cut roughly three days of manual configuration per rollout. Outside it I ship my own products end to end, design through backend.</p>
   </div>
 
   <div class="stats" data-reveal>
@@ -196,6 +205,8 @@
     <span>Bangalore · IST</span>
   </div>
 </footer>
+
+<div class="shatter" id="shatter" aria-hidden="true"></div>
 
 <!-- CARD REVEAL OVERLAY -->
 <div class="reveal" id="reveal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="revealTitle">
@@ -222,6 +233,6 @@
   </div>
 </div>
 
-<script src="main.js?v=13"></script>
+<script src="main.js?v=14"></script>
 </body>
 </html>

@@ -8,18 +8,19 @@
 
 /* ---------- 1. tokens ---------- */
 :root {
-  --paper: #f5f2eb;
-  --paper-2: #ebe6da;
-  --ink: #171714;
-  --soft: #6e6a62;
-  --line: rgba(23, 23, 20, .16);
-  --card: #ddd7c9;
+  --paper: #f7f0dd;
+  --paper-2: #f0e6cd;
+  --ink: #1a1712;
+  --soft: #736b5c;
+  --line: rgba(26, 23, 18, .17);
+  --card: #e7dcc0;
 
   --coral: #d95d3f;
   --blue: #3f70d4;
   --green: #327b59;
 
   --serif: "Playfair Display", Georgia, serif;
+  --vogue: "Bodoni Moda", "Didot", "Playfair Display", Georgia, serif;
   --sans: "DM Sans", Arial, sans-serif;
   --mono: "DM Mono", monospace;
 
@@ -29,12 +30,12 @@
 }
 
 html.dark {
-  --paper: #121211;
-  --paper-2: #1a1a18;
-  --ink: #f4f0e8;
-  --soft: #a5a096;
-  --line: rgba(244, 240, 232, .16);
-  --card: #232320;
+  --paper: #14120e;
+  --paper-2: #1d1a14;
+  --ink: #f6f0e0;
+  --soft: #a9a191;
+  --line: rgba(246, 240, 224, .16);
+  --card: #262218;
 
   --coral: #ff9a76;
   --blue: #8eafff;
@@ -76,7 +77,59 @@ a { color: inherit; text-decoration: none; }
 .hero__lede span[class^="text-"],
 .work-intro span[class^="text-"] { font-weight: 500; }
 
-/* ---------- 3. scroll progress ---------- */
+/* ---------- 3. loading screen ---------- */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 30px;
+  background: var(--paper);
+  transition: opacity .7s var(--ease), visibility .7s;
+}
+
+.loader.is-done { opacity: 0; visibility: hidden; }
+
+.loader__mark {
+  font: 400 clamp(64px, 12vw, 130px)/1 var(--vogue);
+  letter-spacing: .16em;
+  padding-left: .16em;
+  color: var(--ink);
+  opacity: 0;
+  animation: markIn 1s var(--ease-out) forwards;
+}
+
+@keyframes markIn {
+  from { opacity: 0; transform: translateY(14px); letter-spacing: .34em; }
+  to   { opacity: 1; transform: none; letter-spacing: .16em; }
+}
+
+.loader__bar {
+  width: min(240px, 52vw);
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.loader__bar span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--coral);
+}
+
+.loader__count {
+  font: 10px var(--mono);
+  letter-spacing: .18em;
+  color: var(--soft);
+}
+
+/* Nothing behind the loader should animate in until it lifts. */
+.is-loading { overflow: hidden; }
+
+/* ---------- 3b. scroll progress ---------- */
 .progress {
   position: fixed;
   inset: 0 auto auto 0;
@@ -110,8 +163,9 @@ a { color: inherit; text-decoration: none; }
 .nav.is-hidden { transform: translateY(-104%); }
 
 .nav__brand {
-  font: 600 22px/1 var(--serif);
-  letter-spacing: -.06em;
+  font: 400 25px/1 var(--vogue);
+  letter-spacing: .12em;
+  padding-left: .12em;
 }
 .nav__brand span { color: var(--coral); }
 
@@ -494,73 +548,90 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: -.04em;
 }
 
-.projects {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+.deck__hint {
+  margin: 0 0 26px;
+  font: 10px var(--mono);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+/* The deck: cards overlap in a fan and spread apart on hover. Sized by
+   aspect ratio so the shatter tiles map cleanly onto the card art. */
+.deck {
+  position: relative;
+  height: clamp(400px, 46vw, 560px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1400px;
 }
 
 .project {
-  position: relative;
-  isolation: isolate;
-  min-height: 360px;
+  position: absolute;
+  width: clamp(240px, 25vw, 320px);
+  height: clamp(360px, 41vw, 500px);
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  padding: 22px;
+  padding: 20px;
   border: 1px solid var(--line);
-  background: transparent;
+  border-radius: 6px;
+  background: var(--card);
   color: var(--ink);
   text-align: left;
   cursor: pointer;
   overflow: hidden;
-  transform-style: preserve-3d;
-  transition: color .4s var(--ease), border-color .4s;
+  transform-origin: bottom center;
+  box-shadow: 0 18px 40px rgba(40, 28, 8, .14);
+  transition: transform .65s var(--ease), box-shadow .5s, border-color .4s, color .4s;
 }
 
-.project--rice     { background: color-mix(in srgb, #74a96b 13%, transparent); }
-.project--moksh    { background: color-mix(in srgb, #d69b42 13%, transparent); }
-.project--research { background: color-mix(in srgb, #5f83cf 13%, transparent); }
+/* fanned resting positions */
+.project--rice     { transform: translateX(-52%) rotate(-9deg); z-index: 1; }
+.project--moksh    { transform: translateY(-10px); z-index: 3; }
+.project--research { transform: translateX(52%) rotate(9deg); z-index: 2; }
 
-.dark .project--rice     { background: color-mix(in srgb, #74a96b 20%, transparent); }
-.dark .project--moksh    { background: color-mix(in srgb, #d69b42 20%, transparent); }
-.dark .project--research { background: color-mix(in srgb, #5f83cf 20%, transparent); }
+.deck:hover .project--rice     { transform: translateX(-86%) rotate(-13deg); }
+.deck:hover .project--research { transform: translateX(86%) rotate(13deg); }
 
-/* image layer — scales + parallaxes via --px/--py set in JS */
+.project:hover {
+  z-index: 6;
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 34px 70px rgba(40, 28, 8, .3);
+}
+
+.deck:hover .project--rice:hover     { transform: translateX(-86%) rotate(-13deg) translateY(-26px) scale(1.05); }
+.deck:hover .project--research:hover { transform: translateX(86%) rotate(13deg) translateY(-26px) scale(1.05); }
+.project--moksh:hover                { transform: translateY(-36px) scale(1.05); }
+
+.project--rice     { background: color-mix(in srgb, #74a96b 15%, var(--card)); }
+.project--moksh    { background: color-mix(in srgb, #d69b42 15%, var(--card)); }
+.project--research { background: color-mix(in srgb, #5f83cf 15%, var(--card)); }
+
 .project::before {
   content: "";
   position: absolute;
   z-index: -1;
-  inset: -8%;
-  background: linear-gradient(180deg, rgba(10, 10, 10, .2), rgba(10, 10, 10, .8)), var(--image) center/cover;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 10, 10, .22), rgba(10, 10, 10, .82)), var(--image) center/cover;
   opacity: 0;
-  transform: scale(1.06) translate(var(--px, 0px), var(--py, 0px));
-  transition: opacity .5s var(--ease), transform .4s var(--ease);
+  transition: opacity .5s var(--ease);
 }
 
-.project:hover { color: #fff; border-color: transparent; }
 .project:hover::before { opacity: 1; }
 
-/* grain sweep on hover */
-.project::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .16) 50%, transparent 62%);
-  transform: translateX(-120%);
-  transition: transform .9s var(--ease);
-}
-.project:hover::after { transform: translateX(120%); }
+/* a card that is being shattered must not linger under the pieces */
+.project.is-shattering { opacity: 0; transition: opacity .06s; }
 
 .project__top,
 .project__bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font: 10px var(--mono);
-  letter-spacing: .08em;
+  font: 9px var(--mono);
+  letter-spacing: .09em;
   text-transform: uppercase;
   color: var(--soft);
   transition: color .4s;
@@ -575,27 +646,27 @@ a { color: inherit; text-decoration: none; }
   margin-top: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .project__title em {
-  font: 500 clamp(42px, 4.4vw, 74px)/.9 var(--serif);
-  letter-spacing: -.075em;
-  transition: color .4s, transform .5s var(--ease);
+  font: 500 clamp(34px, 3.4vw, 46px)/.92 var(--serif);
+  letter-spacing: -.055em;
+  transition: color .4s;
 }
 
-.project:hover .project__title em { color: #fff; transform: translateY(-4px); }
-
-.project--rice     .project__title em { color: #3d7b42; }
-.project--moksh    .project__title em { color: #a66b21; }
-.project--research .project__title em { color: #3c63b4; }
+.project--rice     .project__title em { color: #34702f; }
+.project--moksh    .project__title em { color: #945d17; }
+.project--research .project__title em { color: #33569f; }
 
 .dark .project--rice     .project__title em { color: #a8e69b; }
 .dark .project--moksh    .project__title em { color: #f2c26e; }
 .dark .project--research .project__title em { color: #9cb9ff; }
 
+.project:hover .project__title em { color: #fff; }
+
 .project__title small {
-  font: 11px var(--mono);
+  font: 10px var(--mono);
   letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--soft);
@@ -606,8 +677,8 @@ a { color: inherit; text-decoration: none; }
 .project__bottom {
   position: relative;
   z-index: 2;
-  margin-top: 22px;
-  padding-top: 14px;
+  margin-top: 18px;
+  padding-top: 12px;
   border-top: 1px solid var(--line);
   transition: border-color .4s, color .4s;
 }
@@ -616,11 +687,29 @@ a { color: inherit; text-decoration: none; }
 .project__open b {
   display: inline-block;
   margin-left: 5px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 400;
   transition: transform .4s var(--ease);
 }
 .project:hover .project__open b { transform: translate(3px, -3px); }
+
+/* ---- shatter layer ---- */
+.shatter {
+  position: fixed;
+  inset: 0;
+  z-index: 92;
+  pointer-events: none;
+}
+
+/* No overflow clipping here: the shards must be free to fly outside the
+   card's original footprint. */
+.shard-box { position: fixed; }
+
+.shard {
+  position: absolute;
+  background-repeat: no-repeat;
+  will-change: transform, opacity;
+}
 
 /* ---------- 8. stack ---------- */
 .stack {
@@ -810,16 +899,33 @@ a { color: inherit; text-decoration: none; }
 
 .reveal__description { max-width: 36ch; margin: 0 0 30px; font-size: 18px; line-height: 1.4; letter-spacing: -.03em; }
 
-.reveal__meta { display: flex; flex-wrap: wrap; gap: 8px; }
-.reveal__meta span {
-  padding: 7px 11px;
-  border: 1px solid var(--line);
-  border-radius: 100px;
-  font: 10px var(--mono);
-  letter-spacing: .08em;
+.reveal__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+
+.reveal__meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px 6px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  font: 500 10px var(--mono);
+  letter-spacing: .07em;
   text-transform: uppercase;
-  color: var(--soft);
+  color: var(--ink);
 }
+
+/* small square marker instead of a floating outline pill */
+.reveal__meta > span::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 1px;
+  background: var(--coral);
+  opacity: .8;
+}
+
+.reveal__meta .round-link { flex-basis: 100%; width: fit-content; }
 
 .duo {
   order: 1;
@@ -831,14 +937,21 @@ a { color: inherit; text-decoration: none; }
 }
 .reveal.is-open .duo { opacity: 1; transform: none; }
 
+/* One device frame for every project. The Moksh mockup is embedded with
+   ?bare=1 so it drops its own bezel instead of drawing a phone inside a
+   phone; the iframe renders at its natural 390px width and is scaled to
+   fit this screen exactly. */
 .ph {
+  --screen-w: 247px;
+  --screen-h: 534px;
+  --frame-w: 390px;
   position: relative;
-  width: 265px;
-  height: 552px;
-  border: 9px solid #161616;
-  border-radius: 40px;
-  background: #161616;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, .3);
+  width: calc(var(--screen-w) + 18px);
+  height: calc(var(--screen-h) + 18px);
+  border: 9px solid #17150f;
+  border-radius: 42px;
+  background: #17150f;
+  box-shadow: 0 30px 70px rgba(30, 20, 6, .34);
   overflow: hidden;
 }
 
@@ -846,9 +959,13 @@ a { color: inherit; text-decoration: none; }
 .ph__screen img,
 .ph__screen iframe { display: block; width: 100%; height: 100%; border: 0; object-fit: cover; }
 
-.duo.html-mockup .ph { width: 280px; height: 607px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
-.duo.html-mockup .ph__screen { width: 280px; height: 607px; overflow: hidden; }
-.duo.html-mockup .ph__screen iframe { width: 400px; height: 868px; transform: scale(.7); transform-origin: top left; }
+.duo.html-mockup .ph__screen { overflow: hidden; }
+.duo.html-mockup .ph__screen iframe {
+  width: var(--frame-w);
+  height: calc(var(--screen-h) / (var(--screen-w) / var(--frame-w)));
+  transform: scale(calc(var(--screen-w) / var(--frame-w)));
+  transform-origin: top left;
+}
 
 .reveal__placeholder { grid-column: 1 / -1; font: italic 30px var(--serif); }
 
@@ -877,8 +994,19 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 900px) {
-  .projects { grid-template-columns: 1fr; }
-  .project { min-height: 300px; }
+  .deck { height: auto; display: flex; flex-direction: column; gap: 14px; perspective: none; }
+  .project,
+  .deck:hover .project--rice,
+  .deck:hover .project--research {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    transform: none;
+  }
+  .project:hover,
+  .deck:hover .project--rice:hover,
+  .deck:hover .project--research:hover,
+  .project--moksh:hover { transform: none; }
   .about { grid-template-columns: 1fr; gap: 44px; }
 }
 
@@ -905,7 +1033,7 @@ a { color: inherit; text-decoration: none; }
   .work { padding: 80px var(--gutter); }
   .section-head h2 { font-size: clamp(57px, 17vw, 92px); }
   .work-intro { margin: 42px 0; }
-  .project__title em { font-size: 54px; }
+  .project__title em { font-size: 40px; }
 
   .stats { grid-template-columns: 1fr 1fr; }
 
@@ -921,10 +1049,7 @@ a { color: inherit; text-decoration: none; }
   .reveal__description { font-size: 16px; margin-inline: auto; }
   .reveal__meta { justify-content: center; }
   .duo { order: 2; }
-  .ph { width: 215px; height: 448px; }
-  .duo.html-mockup .ph,
-  .duo.html-mockup .ph__screen { width: 230px; height: 500px; }
-  .duo.html-mockup .ph__screen iframe { transform: scale(.575); }
+  .ph { --screen-w: 215px; --screen-h: 465px; }
   .reveal__placeholder { font-size: 24px; }
 }
 

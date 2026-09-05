@@ -1,3 +1,45 @@
+/* ---------- loading screen ---------- */
+const loader = document.getElementById("loader");
+
+if (loader) {
+  const fill = document.getElementById("loaderFill");
+  const pct = document.getElementById("loaderPct");
+  document.documentElement.classList.add("is-loading");
+
+  let shown = 0;
+  let done = false;
+
+  const lift = () => {
+    if (done) return;
+    done = true;
+    shown = 100;
+    fill.style.width = "100%";
+    pct.textContent = "100";
+    setTimeout(() => {
+      loader.classList.add("is-done");
+      document.documentElement.classList.remove("is-loading");
+      document.body.classList.add("is-ready");
+    }, 260);
+  };
+
+  // Creep toward 90 on a timer, then jump to 100 when the page is actually
+  // loaded. Never let a slow asset hold the visitor at a frozen bar.
+  const creep = () => {
+    if (done) return;
+    shown = Math.min(shown + Math.random() * 9, 90);
+    fill.style.width = shown + "%";
+    pct.textContent = Math.round(shown);
+    setTimeout(creep, 90 + Math.random() * 120);
+  };
+  creep();
+
+  if (document.readyState === "complete") setTimeout(lift, 500);
+  else addEventListener("load", () => setTimeout(lift, 350), { once: true });
+
+  // Hard ceiling so the site is never gated behind a stalled request.
+  setTimeout(lift, 3200);
+}
+
 /* ============================================================
    Krishna Ganga — portfolio interactions
    Everything degrades to a static page when motion is reduced.
@@ -65,9 +107,8 @@ addEventListener("scroll", () => {
 }, { passive: true });
 
 /* ---------- entrance ---------- */
-addEventListener("load", () => document.body.classList.add("is-ready"), { once: true });
-// Fallback in case load fires before the listener attaches (cached assets).
-setTimeout(() => document.body.classList.add("is-ready"), 400);
+// Belt and braces: if the loader is ever absent, the hero must still reveal.
+setTimeout(() => document.body.classList.add("is-ready"), 3600);
 
 /* ---------- scroll reveals ---------- */
 const revealObserver = new IntersectionObserver((entries) => {
@@ -347,8 +388,86 @@ function closeReveal() {
   opener?.focus();
 }
 
+/* ---------- shatter ----------
+   The card breaks into a grid of shards, each one painted with the slice of
+   the card's own artwork that sat at that position, so the pieces genuinely
+   look like fragments of the card rather than generic confetti. */
+const shatterLayer = document.getElementById("shatter");
+const COLS = 6;
+const ROWS = 8;
+
+function shatter(card, done) {
+  if (!shatterLayer || reduceMotion.matches) { done(); return; }
+
+  const deckBox = card.offsetParent.getBoundingClientRect();
+  const width = card.offsetWidth;
+  const height = card.offsetHeight;
+  const styles = getComputedStyle(card);
+  const image = styles.getPropertyValue("--image").trim();
+  const tint = styles.backgroundColor;
+
+  // The cards sit at a rotation, so the shards are laid out in the card's own
+  // untransformed space inside a wrapper that carries the card's current
+  // transform. Using the bounding rect instead would misalign every piece.
+  const box = document.createElement("div");
+  box.className = "shard-box";
+  box.style.cssText = `left:${deckBox.left + card.offsetLeft}px;top:${deckBox.top + card.offsetTop}px;` +
+    `width:${width}px;height:${height}px;transform:${styles.transform};` +
+    `transform-origin:${styles.transformOrigin};border-radius:${styles.borderRadius};`;
+
+  const tileW = width / COLS;
+  const tileH = height / ROWS;
+  const shards = [];
+
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      const shard = document.createElement("div");
+      shard.className = "shard";
+      shard.style.cssText = `left:${col * tileW}px;top:${row * tileH}px;` +
+        `width:${tileW + .5}px;height:${tileH + .5}px;background-color:${tint};` +
+        `background-image:linear-gradient(180deg, rgba(10,10,10,.22), rgba(10,10,10,.82)), ${image};` +
+        `background-size:${width}px ${height}px;` +
+        `background-position:${-col * tileW}px ${-row * tileH}px;`;
+      box.append(shard);
+      shards.push({ node: shard, col, row });
+    }
+  }
+
+  shatterLayer.append(box);
+  card.classList.add("is-shattering");
+
+  shards.forEach(({ node, col, row }) => {
+    // Blow outwards from the middle of the card so the break reads as an impact.
+    const dx = (col - (COLS - 1) / 2) / COLS;
+    const dy = (row - (ROWS - 1) / 2) / ROWS;
+    const spread = 260 + Math.random() * 260;
+
+    node.animate([
+      { transform: "translate3d(0,0,0) rotate(0deg)", opacity: 1 },
+      {
+        transform: `translate3d(${dx * spread}px, ${dy * spread + 150}px, 0) ` +
+                   `rotate(${(Math.random() - .5) * 100}deg) scale(${.35 + Math.random() * .4})`,
+        opacity: 0
+      }
+    ], {
+      duration: 640 + Math.random() * 340,
+      delay: Math.abs(dx) * 90 + Math.random() * 60,
+      easing: "cubic-bezier(.2,.7,.3,1)",
+      fill: "forwards"
+    });
+  });
+
+  setTimeout(() => {
+    box.remove();
+    card.classList.remove("is-shattering");
+  }, 1200);
+
+  // Open the project just after the break starts, so the two read as one move.
+  setTimeout(done, 320);
+}
+
 document.querySelectorAll(".project").forEach((project) => {
-  project.addEventListener("click", () => openReveal(project));
+  project.addEventListener("click", () => shatter(project, () => openReveal(project)));
 });
 
 closeButton.addEventListener("click", closeReveal);
@@ -367,7 +486,14 @@ if (heroIndex) {
 
   heroIndex.querySelectorAll("button").forEach((row) => {
     // Reuse the existing modal rather than duplicating the project content.
-    row.addEventListener("click", () => cardFor(row.dataset.jump)?.click());
+    row.addEventListener("click", () => {
+      const card = cardFor(row.dataset.jump);
+      if (!card) return;
+      // Only worth breaking the card if the visitor can actually see it.
+      const box = card.getBoundingClientRect();
+      if (box.top < innerHeight && box.bottom > 0) card.click();
+      else openReveal(card);
+    });
 
     if (!peek || !finePointer.matches || reduceMotion.matches) return;
 
