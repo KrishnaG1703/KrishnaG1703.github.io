@@ -58,6 +58,21 @@ body {
 
 body.reveal-open { overflow: hidden; }
 
+/* A little tooth on the paper. Sits above the content but below the nav and
+   the modal, and never intercepts a pointer. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: .32;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+}
+
+.dark body::after { mix-blend-mode: screen; opacity: .14; }
+
 a { color: inherit; text-decoration: none; }
 
 ::selection { background: var(--coral); color: var(--paper); }
@@ -69,6 +84,12 @@ a { color: inherit; text-decoration: none; }
   text-transform: uppercase;
   color: var(--soft);
 }
+
+.eyebrow b { font-weight: 400; color: var(--coral); }
+
+.tint-coral { color: var(--coral); }
+.tint-blue  { color: var(--blue); }
+.tint-green { color: var(--green); }
 
 .text-coral { color: var(--coral); }
 .text-blue  { color: var(--blue); }
@@ -323,6 +344,28 @@ a { color: inherit; text-decoration: none; }
 }
 .is-ready .line > span { transform: translateY(0); }
 .is-ready .line:nth-child(2) > span { transition-delay: .1s; }
+
+/* Krishna carries a rule at rest; hovering the name draws a second one
+   under Ganga so the full name reads as underlined. */
+.name-part { position: relative; display: inline-block; }
+
+.name-part::after {
+  content: "";
+  position: absolute;
+  left: .03em;
+  right: .05em;
+  bottom: .015em;
+  height: .032em;
+  background: var(--coral);
+  transform-origin: left;
+  transition: transform .6s var(--ease);
+}
+
+.name-part--first::after { transform: scaleX(1); }
+.name-part--last::after  { transform: scaleX(0); background: var(--blue); }
+
+.hero__name:hover .name-part--last::after { transform: scaleX(1); }
+.hero__name:hover .name-part--first::after { transform: scaleX(1); }
 
 /* ---- hero foot: pitch on the left, the actual work on the right ---- */
 .hero__foot {
@@ -705,7 +748,10 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- 8. stack ---------- */
 .stack {
-  padding: 0 var(--gutter) 9vw;
+  padding: 8vw var(--gutter) 9vw;
+  background: var(--paper-2);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .stack__list { margin: 58px 0 0; border-top: 1px solid var(--line); }
@@ -759,7 +805,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- 9. about + stats ---------- */
 .about {
-  padding: 0 var(--gutter) 9vw;
+  padding: 8vw var(--gutter) 9vw;
   display: grid;
   grid-template-columns: 1fr minmax(300px, 520px);
   gap: 6vw;
@@ -783,6 +829,10 @@ a { color: inherit; text-decoration: none; }
   font: 500 clamp(46px, 5vw, 76px)/1 var(--serif);
   letter-spacing: -.06em;
 }
+
+.stat:nth-child(1) .stat__num { color: var(--coral); }
+.stat:nth-child(2) .stat__num { color: var(--blue); }
+.stat:nth-child(3) .stat__num { color: var(--green); }
 .stat__num sup { font-size: .42em; vertical-align: super; color: var(--coral); }
 
 .stat__label {
@@ -795,14 +845,26 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ---------- 10. footer ---------- */
-.foot { padding: 0 var(--gutter) 32px; }
+/* Inverted block: the page has been cream the whole way down, and the
+   contact panel is the one place it should turn. Local tokens so every
+   rule and muted line inside it flips with it. */
+.foot {
+  --line: rgba(247, 240, 221, .2);
+  --soft: rgba(247, 240, 221, .58);
+  padding: 0 var(--gutter) 34px;
+  background: #17140e;
+  color: #f7f0dd;
+}
+
+.dark .foot { background: #0d0b08; }
 
 .foot__title {
-  padding-top: 8vw;
-  border-top: 1px solid var(--line);
+  padding-top: 7vw;
   font: 600 clamp(76px, 14vw, 205px)/.8 var(--serif);
   letter-spacing: -.09em;
 }
+
+.foot__title em { color: var(--coral); }
 .foot__title em { font-weight: 500; }
 
 .foot__mail {
@@ -822,7 +884,7 @@ a { color: inherit; text-decoration: none; }
   right: 0;
   bottom: 0;
   height: 1px;
-  background: var(--ink);
+  background: currentColor;
   transform-origin: right;
   transition: transform .5s var(--ease);
 }
@@ -840,7 +902,7 @@ a { color: inherit; text-decoration: none; }
   color: var(--soft);
 }
 
-.foot__row a:hover { color: var(--ink); }
+.foot__row a:hover { color: #f7f0dd; }
 
 /* ---------- 11. reveal modal ---------- */
 .reveal {
@@ -951,11 +1013,27 @@ a { color: inherit; text-decoration: none; }
 .ph__screen img,
 .ph__screen iframe { display: block; width: 100%; height: 100%; border: 0; object-fit: cover; }
 
-.duo.html-mockup .ph__screen { overflow: hidden; }
+/* The Moksh mockup draws its own handset, so the portfolio's device frame
+   gets out of the way entirely and the file is simply scaled to fit. */
+.duo.html-mockup .ph {
+  --embed-w: 454px;
+  --embed-h: 926px;
+  --embed-scale: .62;
+  width: calc(var(--embed-w) * var(--embed-scale));
+  height: calc(var(--embed-h) * var(--embed-scale));
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.duo.html-mockup .ph__screen { width: 100%; height: 100%; overflow: visible; }
+
 .duo.html-mockup .ph__screen iframe {
-  width: var(--frame-w);
-  height: calc(var(--screen-h) / (var(--screen-w) / var(--frame-w)));
-  transform: scale(calc(var(--screen-w) / var(--frame-w)));
+  width: var(--embed-w);
+  height: var(--embed-h);
+  transform: scale(var(--embed-scale));
   transform-origin: top left;
 }
 
@@ -1036,6 +1114,7 @@ a { color: inherit; text-decoration: none; }
   .reveal__meta { justify-content: center; }
   .duo { order: 2; }
   .ph { --screen-w: 215px; --screen-h: 465px; }
+  .duo.html-mockup .ph { --embed-scale: .52; }
   .reveal__placeholder { font-size: 24px; }
 }
 
