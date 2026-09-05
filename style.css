@@ -45,6 +45,11 @@ html.dark {
 /* ---------- 2. base ---------- */
 * { box-sizing: border-box; }
 
+/* Author rules that set a display value silently beat the [hidden] attribute's
+   UA display:none. Several elements here are toggled with .hidden and are also
+   given display:block/flex, so hidden must win explicitly. */
+[hidden] { display: none !important; }
+
 html { scroll-behavior: smooth; scrollbar-gutter: stable; }
 
 body {
@@ -345,27 +350,7 @@ a { color: inherit; text-decoration: none; }
 .is-ready .line > span { transform: translateY(0); }
 .is-ready .line:nth-child(2) > span { transition-delay: .1s; }
 
-/* Krishna carries a rule at rest; hovering the name draws a second one
-   under Ganga so the full name reads as underlined. */
-.name-part { position: relative; display: inline-block; }
 
-.name-part::after {
-  content: "";
-  position: absolute;
-  left: .03em;
-  right: .05em;
-  bottom: .015em;
-  height: .032em;
-  background: var(--coral);
-  transform-origin: left;
-  transition: transform .6s var(--ease);
-}
-
-.name-part--first::after { transform: scaleX(1); }
-.name-part--last::after  { transform: scaleX(0); background: var(--blue); }
-
-.hero__name:hover .name-part--last::after { transform: scaleX(1); }
-.hero__name:hover .name-part--first::after { transform: scaleX(1); }
 
 /* ---- hero foot: pitch on the left, the actual work on the right ---- */
 .hero__foot {
