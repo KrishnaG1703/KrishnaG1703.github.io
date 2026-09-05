@@ -48,6 +48,7 @@ const nav = document.getElementById("nav");
 const progress = document.getElementById("progress");
 let lastScroll = 0;
 let scrollVelocity = 0;
+let wakeMarquee = () => {};
 
 addEventListener("scroll", () => {
   const y = scrollY;
@@ -60,6 +61,7 @@ addEventListener("scroll", () => {
 
   scrollVelocity = Math.min(Math.abs(y - lastScroll) / 14, 3);
   lastScroll = y;
+  wakeMarquee();
 }, { passive: true });
 
 /* ---------- entrance ---------- */
@@ -127,7 +129,11 @@ function rescueHidden() {
   });
 }
 
-setInterval(rescueHidden, 1200);
+// No perpetual timer: the observers above are the normal path, and these
+// cover the one case they miss — a tab that was backgrounded while loading,
+// where observer callbacks are not delivered.
+setTimeout(rescueHidden, 1500);
+setTimeout(rescueHidden, 4000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) rescueHidden(); });
 
 /* ---------- text scramble ---------- */
@@ -192,13 +198,31 @@ const marqueeTrack = document.getElementById("marqueeTrack");
 if (marqueeTrack) {
   marqueeTrack.parentElement.append(marqueeTrack.cloneNode(true));
   if (!reduceMotion.matches) {
+    const tracks = [...marqueeTrack.parentElement.querySelectorAll(".marquee__track")];
+    let applied = null;
+
+    // Writing animationDuration restarts the animation and forces a style
+    // recalc, so only write when the rounded value actually changes rather
+    // than on every frame.
+    let pulsing = false;
+
     const pulse = () => {
-      const rate = 1 + scrollVelocity;
-      marqueeTrack.parentElement.querySelectorAll(".marquee__track")
-        .forEach((track) => { track.style.animationDuration = `${34 / rate}s`; });
+      scrollVelocity *= .92;
+      const seconds = Math.round((34 / (1 + scrollVelocity)) * 4) / 4;
+      if (seconds !== applied) {
+        applied = seconds;
+        tracks.forEach((track) => { track.style.animationDuration = `${seconds}s`; });
+      }
+      // Park the loop once the marquee is back at rest; scrolling wakes it.
+      if (scrollVelocity > .01) requestAnimationFrame(pulse);
+      else pulsing = false;
+    };
+
+    wakeMarquee = () => {
+      if (pulsing) return;
+      pulsing = true;
       requestAnimationFrame(pulse);
     };
-    requestAnimationFrame(pulse);
   }
 }
 
@@ -222,14 +246,23 @@ if (finePointer.matches && !reduceMotion.matches) {
 /* ---------- project cards: tilt + image parallax ---------- */
 if (finePointer.matches && !reduceMotion.matches) {
   document.querySelectorAll(".project").forEach((card) => {
-    card.addEventListener("pointermove", (event) => {
-      const box = card.getBoundingClientRect();
-      const nx = (event.clientX - box.left) / box.width - .5;
-      const ny = (event.clientY - box.top) / box.height - .5;
+    let queued = false;
+    let nx = 0, ny = 0;
+
+    const apply = () => {
+      queued = false;
       card.style.transform = `perspective(900px) rotateX(${-ny * 5}deg) rotateY(${nx * 5}deg) translateY(-6px)`;
       card.style.setProperty("--px", `${-nx * 22}px`);
       card.style.setProperty("--py", `${-ny * 22}px`);
-    });
+    };
+
+    // Pointer events fire faster than the display refreshes; coalesce them.
+    card.addEventListener("pointermove", (event) => {
+      const box = card.getBoundingClientRect();
+      nx = (event.clientX - box.left) / box.width - .5;
+      ny = (event.clientY - box.top) / box.height - .5;
+      if (!queued) { queued = true; requestAnimationFrame(apply); }
+    }, { passive: true });
     card.addEventListener("pointerleave", () => {
       card.style.transition = "transform .6s cubic-bezier(.2,.8,.2,1), color .4s, border-color .4s";
       card.style.transform = "";
@@ -238,37 +271,6 @@ if (finePointer.matches && !reduceMotion.matches) {
       setTimeout(() => { card.style.transition = ""; }, 620);
     });
   });
-}
-
-/* ---------- custom cursor ---------- */
-const cursor = document.getElementById("cursor");
-const cursorRing = document.getElementById("cursorRing");
-
-if (finePointer.matches && !reduceMotion.matches) {
-  let mouseX = innerWidth / 2, mouseY = innerHeight / 2;
-  let ringX = mouseX, ringY = mouseY;
-
-  addEventListener("pointermove", (event) => {
-    mouseX = event.clientX;
-    mouseY = event.clientY;
-    cursor.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
-  }, { passive: true });
-
-  const followRing = () => {
-    ringX = lerp(ringX, mouseX, .16);
-    ringY = lerp(ringY, mouseY, .16);
-    cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
-    requestAnimationFrame(followRing);
-  };
-  requestAnimationFrame(followRing);
-
-  const INTERACTIVE = "a, button, [data-magnetic], .project";
-  addEventListener("pointerover", (event) => {
-    cursorRing.classList.toggle("is-active", Boolean(event.target.closest(INTERACTIVE)));
-  }, { passive: true });
-} else {
-  cursor?.remove();
-  cursorRing?.remove();
 }
 
 /* ---------- reveal modal ---------- */
@@ -356,6 +358,7 @@ document.addEventListener("keydown", (event) => {
 });
 
 /* ---------- hero index: pointer peek + jump to project ---------- */
+let startPeekFollow = null;
 const peek = document.getElementById("peek");
 const heroIndex = document.getElementById("heroIndex");
 
@@ -368,9 +371,10 @@ if (heroIndex) {
 
     if (!peek || !finePointer.matches || reduceMotion.matches) return;
 
-    row.addEventListener("pointerenter", () => {
+    row.addEventListener("pointerenter", (event) => {
       peek.style.backgroundImage = `url('${row.dataset.peek}')`;
       peek.classList.add("is-visible");
+      startPeekFollow?.(event.clientX, event.clientY);
     });
     row.addEventListener("pointerleave", () => peek.classList.remove("is-visible"));
   });
@@ -378,18 +382,36 @@ if (heroIndex) {
   if (peek && finePointer.matches && !reduceMotion.matches) {
     let peekX = 0, peekY = 0, targetX = 0, targetY = 0;
 
-    heroIndex.addEventListener("pointermove", (event) => {
-      targetX = event.clientX;
-      targetY = event.clientY;
-    }, { passive: true });
+    let following = false;
 
     const follow = () => {
       peekX = lerp(peekX, targetX, .12);
       peekY = lerp(peekY, targetY, .12);
       peek.style.translate = `${peekX}px ${peekY}px`;
+      // Only worth a frame while the thumbnail is actually on screen.
+      if (peek.classList.contains("is-visible")) requestAnimationFrame(follow);
+      else following = false;
+    };
+
+    heroIndex.addEventListener("pointermove", (event) => {
+      targetX = event.clientX;
+      targetY = event.clientY;
+      if (!following && peek.classList.contains("is-visible")) {
+        following = true;
+        requestAnimationFrame(follow);
+      }
+    }, { passive: true });
+
+    startPeekFollow = (x, y) => {
+      // Seed the position so the thumbnail appears under the pointer
+      // instead of sliding in from wherever it was last left.
+      peekX = targetX = x;
+      peekY = targetY = y;
+      peek.style.translate = `${x}px ${y}px`;
+      if (following) return;
+      following = true;
       requestAnimationFrame(follow);
     };
-    requestAnimationFrame(follow);
   }
 }
 

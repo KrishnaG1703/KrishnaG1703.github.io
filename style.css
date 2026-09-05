@@ -1,6 +1,6 @@
 /* ============================================================
    Krishna Ganga — portfolio
-   1. tokens      2. base       3. cursor + progress
+   1. tokens      2. base       3. scroll progress
    4. nav         5. hero       6. marquee
    7. work        8. stack      9. about/stats
    10. footer     11. reveal    12. motion utilities
@@ -76,7 +76,7 @@ a { color: inherit; text-decoration: none; }
 .hero__lede span[class^="text-"],
 .work-intro span[class^="text-"] { font-weight: 500; }
 
-/* ---------- 3. cursor + scroll progress ---------- */
+/* ---------- 3. scroll progress ---------- */
 .progress {
   position: fixed;
   inset: 0 auto auto 0;
@@ -86,46 +86,6 @@ a { color: inherit; text-decoration: none; }
   transform: scaleX(0);
   transform-origin: left;
   background: linear-gradient(90deg, var(--coral), var(--blue), var(--green));
-}
-
-.cursor,
-.cursor-ring {
-  position: fixed;
-  z-index: 100;
-  left: 0;
-  top: 0;
-  border-radius: 50%;
-  pointer-events: none;
-  will-change: transform;
-}
-
-.cursor {
-  width: 7px;
-  height: 7px;
-  margin: -3.5px 0 0 -3.5px;
-  background: var(--coral);
-}
-
-.cursor-ring {
-  width: 36px;
-  height: 36px;
-  margin: -18px 0 0 -18px;
-  border: 1px solid var(--ink);
-  opacity: .35;
-  transition: width .28s var(--ease), height .28s var(--ease),
-              margin .28s var(--ease), opacity .28s, border-color .28s;
-}
-
-.cursor-ring.is-active {
-  width: 64px;
-  height: 64px;
-  margin: -32px 0 0 -32px;
-  opacity: .8;
-  border-color: var(--coral);
-}
-
-@media (hover: none), (pointer: coarse) {
-  .cursor, .cursor-ring { display: none; }
 }
 
 /* ---------- 4. nav ---------- */
@@ -667,46 +627,53 @@ a { color: inherit; text-decoration: none; }
   padding: 0 var(--gutter) 9vw;
 }
 
-.stack__grid {
+.stack__list { margin: 58px 0 0; border-top: 1px solid var(--line); }
+
+.stack__row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 1px;
-  background: var(--line);
-  border: 1px solid var(--line);
+  grid-template-columns: minmax(0, 250px) minmax(0, 1fr);
+  gap: 24px 40px;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--line);
 }
 
-.stack__cell {
-  position: relative;
-  padding: 30px 24px 34px;
-  background: var(--paper);
-  overflow: hidden;
-  transition: background .4s var(--ease);
-}
-
-.stack__cell::before {
-  content: "";
-  position: absolute;
-  inset: auto 0 0;
-  height: 2px;
-  background: var(--coral);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform .55s var(--ease);
-}
-.stack__cell:hover::before { transform: scaleX(1); }
-.stack__cell:hover { background: var(--paper-2); }
-
-.stack__cell h3 {
-  margin: 14px 0 10px;
-  font: 500 26px/1.1 var(--serif);
+.stack__row dt {
+  font: 500 clamp(21px, 2vw, 27px)/1.15 var(--serif);
   letter-spacing: -.04em;
 }
 
-.stack__cell p {
+.stack__row dd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin: 0;
-  font-size: 15px;
-  line-height: 1.5;
+}
+
+.stack__row dd span {
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  font: 10px var(--mono);
+  letter-spacing: .07em;
+  text-transform: uppercase;
   color: var(--soft);
+  /* colour only — nothing here triggers layout on hover */
+  transition: color .25s, border-color .25s, background-color .25s;
+}
+
+.stack__row dd span:hover { color: var(--ink); border-color: var(--ink); }
+
+/* the things worth spotting first */
+.stack__row dd span.is-key {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--coral) 55%, transparent);
+}
+.stack__row dd span.is-key:hover { background: var(--coral); border-color: var(--coral); color: var(--paper); }
+
+.stack__row dd span i {
+  font-style: normal;
+  opacity: .6;
+  margin-left: 5px;
 }
 
 /* ---------- 9. about + stats ---------- */
@@ -905,6 +872,10 @@ a { color: inherit; text-decoration: none; }
 [data-reveal-stagger].is-in > *:nth-child(5) { transition-delay: .36s; }
 
 /* ---------- responsive ---------- */
+@media (max-width: 860px) {
+  .stack__row { grid-template-columns: 1fr; gap: 14px; }
+}
+
 @media (max-width: 900px) {
   .projects { grid-template-columns: 1fr; }
   .project { min-height: 300px; }
@@ -938,6 +909,9 @@ a { color: inherit; text-decoration: none; }
 
   .stats { grid-template-columns: 1fr 1fr; }
 
+  .stack__list { margin-top: 42px; }
+  .stack__row { grid-template-columns: 1fr; gap: 14px; padding: 22px 0; }
+
   .foot__title { padding-top: 80px; line-height: .85; }
   .foot__mail { margin: 32px 0 64px; }
   .foot__row { flex-direction: column; gap: 8px; }
@@ -963,5 +937,4 @@ a { color: inherit; text-decoration: none; }
   }
   .line > span { transform: none; }
   [data-reveal], [data-reveal-stagger] > * { opacity: 1; transform: none; }
-  .cursor, .cursor-ring { display: none; }
 }

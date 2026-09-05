@@ -14,13 +14,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 
 <div class="progress" id="progress" aria-hidden="true"></div>
-<div class="cursor" id="cursor" aria-hidden="true"></div>
-<div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
 
 <header class="nav" id="nav">
   <a class="nav__brand" href="#top" aria-label="Back to top">KG<span>.</span></a>
@@ -133,47 +131,57 @@
 <!-- STACK -->
 <section class="stack" id="stack">
   <div class="section-head" data-reveal>
-    <p class="eyebrow">02 / How I work</p>
+    <p class="eyebrow">02 / Capabilities</p>
     <h2>The <em>toolkit.</em></h2>
   </div>
 
-  <div class="stack__grid" data-reveal-stagger style="margin-top:58px">
-    <div class="stack__cell">
-      <p class="eyebrow">Product</p>
-      <h3>Ship, then sharpen</h3>
-      <p>Small releases over big reveals. Every interface earns its complexity or gets cut.</p>
+  <dl class="stack__list" data-reveal-stagger>
+    <div class="stack__row">
+      <dt>LLMs &amp; agents</dt>
+      <dd>
+        <span>Prompt engineering</span><span>Context management</span><span>Tool use &amp; function calling</span><span>RAG pipelines</span><span>Structured output parsing</span><span>Schema validation</span><span>Guardrails &amp; refusal behaviour</span><span>Failure-mode debugging</span><span class="is-key">Claude API</span><span class="is-key">Gemini API</span><span class="is-key">OpenAI API</span>
+      </dd>
     </div>
-    <div class="stack__cell">
-      <p class="eyebrow">Applied AI</p>
-      <h3>Models with a job</h3>
-      <p>Vision and language models wired into products where they remove real friction, not as decoration.</p>
+    <div class="stack__row">
+      <dt>Evaluation &amp; observability</dt>
+      <dd>
+        <span>Latency benchmarking (median, p90)</span><span>Extraction accuracy scoring</span><span>Adversarial guardrail suites</span><span>Manual review scoring</span><span>Versioned normalization</span><span>Regression attribution</span><span>Ranked failure capture</span>
+      </dd>
     </div>
-    <div class="stack__cell">
-      <p class="eyebrow">Craft</p>
-      <h3>Details compound</h3>
-      <p>Typography, motion, and timing carry as much of the experience as the architecture behind it.</p>
+    <div class="stack__row">
+      <dt>Backend &amp; infrastructure</dt>
+      <dd>
+        <span class="is-key">Python</span><span class="is-key">Cloudflare Workers</span><span>R2 object storage</span><span class="is-key">Supabase / PostgreSQL</span><span>Schema design</span><span>Row-level security</span><span>REST integration</span><span>Wrangler</span><span>Serverless deployment</span><span>CI/CD</span>
+      </dd>
     </div>
-    <div class="stack__cell">
-      <p class="eyebrow">Research</p>
-      <h3>Read the papers</h3>
-      <p>Published at ICSTE. Practice informed by literature, literature grounded by shipping.</p>
+    <div class="stack__row">
+      <dt>ML &amp; data</dt>
+      <dd>
+        <span>Deep learning</span><span>CNNs</span><span>Computer vision</span><span class="is-key">TensorFlow</span><span class="is-key">Keras</span><span>OpenCV</span><span>MediaPipe</span><span>NumPy</span><span>Pandas</span>
+      </dd>
     </div>
-  </div>
+    <div class="stack__row">
+      <dt>Application &amp; tooling</dt>
+      <dd>
+        <span class="is-key">Swift</span><span class="is-key">SwiftUI</span><span>Combine</span><span>JavaScript</span><span>Streamlit</span><span>Git &amp; GitHub</span><span>Claude Code</span><span>GitHub Copilot <i>certified</i></span><span>VS Code</span><span>Jupyter</span>
+      </dd>
+    </div>
+  </dl>
 </section>
 
 <!-- ABOUT -->
 <section class="about" id="about">
   <div class="about__body" data-reveal>
     <p class="eyebrow">03 / About</p>
-    <p>I build software at the seam between <span class="text-blue">research</span> and <span class="text-coral">product</span> — currently at EY, previously publishing on convolutional neural networks.</p>
-    <p>Outside work I ship my own apps end to end: design, iOS, backend, and the marketing site. <span class="text-green">rice</span> and <span class="text-green">Moksh</span> both started as personal itches.</p>
+    <p>I build and operate <span class="text-blue">LLM-powered systems</span> in production — agents, RAG pipelines, tool integrations, and the backend services behind them.</p>
+    <p>At <span class="text-coral">EY</span> I deliver Guidewire platform work for enterprise insurance clients, where internal agents I built cut roughly three days of manual configuration per rollout. Outside it I ship my own products end to end: <span class="text-green">rice</span> and <span class="text-green">Moksh</span>, design through backend.</p>
   </div>
 
   <div class="stats" data-reveal>
-    <div class="stat"><span class="stat__num" data-count="4">0</span><span class="stat__label">Shipped products</span></div>
-    <div class="stat"><span class="stat__num" data-count="1">0</span><span class="stat__label">Published papers</span></div>
-    <div class="stat"><span class="stat__num" data-count="6">0</span><span class="stat__label">Years building</span></div>
-    <div class="stat"><span class="stat__num" data-count="100" data-suffix="%">0</span><span class="stat__label">Self-taught craft</span></div>
+    <div class="stat"><span class="stat__num" data-count="90" data-suffix="%">0</span><span class="stat__label">Context accuracy, RAG agent</span></div>
+    <div class="stat"><span class="stat__num" data-count="3">0</span><span class="stat__label">Days of manual work removed per rollout</span></div>
+    <div class="stat"><span class="stat__num" data-count="4">0</span><span class="stat__label">Products shipped</span></div>
+    <div class="stat"><span class="stat__num" data-count="1">0</span><span class="stat__label">Paper published, ICSTE 2024</span></div>
   </div>
 </section>
 
@@ -214,6 +222,6 @@
   </div>
 </div>
 
-<script src="main.js?v=12"></script>
+<script src="main.js?v=13"></script>
 </body>
 </html>
