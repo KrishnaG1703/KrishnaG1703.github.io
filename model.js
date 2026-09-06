@@ -6,8 +6,8 @@
    before and nothing below is affected.
    ============================================================ */
 
-import * as THREE from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import * as THREE from "./assets/vendor/three/three.module.min.js";
+import { GLTFLoader } from "./assets/vendor/three/GLTFLoader.js";
 
 const canvas = document.getElementById("heroModel");
 const hero = document.querySelector(".hero");
@@ -100,7 +100,7 @@ function start() {
 
 function stop() { running = false; }
 
-new GLTFLoader().load("assets/model/forest.glb", (gltf) => {
+new GLTFLoader().load("assets/model/bust.glb", (gltf) => {
   const object = gltf.scene;
 
   material = new THREE.MeshStandardMaterial({ roughness: .82, metalness: .04 });
@@ -125,7 +125,10 @@ new GLTFLoader().load("assets/model/forest.glb", (gltf) => {
     return;
   }
   start();
-}, undefined, () => { /* leave the flat hero in place */ });
+}, undefined, (error) => {
+  // The hero falls back to its flat treatment, but say why.
+  console.warn("hero model failed to load, keeping the flat hero", error);
+});
 
 addEventListener("resize", resize, { passive: true });
 
