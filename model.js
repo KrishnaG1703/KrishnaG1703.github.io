@@ -37,31 +37,38 @@ let material = null;
 let ring = null;
 let ringSpin = 0;
 
-/* The name is painted into a texture and wrapped onto an open cylinder
-   around the bust, so it genuinely passes behind his head rather than
-   being drawn over the top of him. */
-function makeNameRing(radius, height) {
-  const REPEATS = 4;
-  const text = "KRISHNA GANGA \u00B7 ";
+/* The name is painted into a texture and wrapped onto an open cylinder set
+   around the bust, so it reads in front, wraps away, and passes behind his
+   shoulders with real depth.
 
+   Two shells share the texture: the outer face at full strength, the inner
+   face faint. Without that split the far side of the ring came back at you
+   mirrored and read as garble rather than as type behind him. */
+function makeNameRing(radius, height) {
+  const text = "KRISHNA GANGA \u00B7 ";
   const canvas = document.createElement("canvas");
   canvas.width = 4096;
-  canvas.height = 256;
+  canvas.height = 200;
   const ctx = canvas.getContext("2d");
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.font = "500 170px 'Playfair Display', Georgia, serif";
+  const FONT = "500 96px 'Playfair Display', Georgia, serif";
+  ctx.font = FONT;
+  if ("letterSpacing" in ctx) ctx.letterSpacing = "0.34em";
+  ctx.font = FONT;
+
+  // Fit a whole number of repeats and let the type keep its proportions:
+  // the previous version squeezed it horizontally to force the tiling.
+  const natural = ctx.measureText(text).width;
+  const repeats = Math.max(1, Math.round(canvas.width / natural));
+  const unit = canvas.width / repeats;
+
   ctx.textBaseline = "middle";
-  ctx.fillStyle = "#f6f0e0";
-
-  const unit = canvas.width / REPEATS;
-  const width = ctx.measureText(text).width;
-  const scale = unit / width;
-
-  for (let i = 0; i < REPEATS; i++) {
+  ctx.fillStyle = "#f2ece0";
+  for (let i = 0; i < repeats; i++) {
+    // at most a couple of percent of tracking adjustment, not a stretch
     ctx.save();
     ctx.translate(i * unit, canvas.height / 2);
-    ctx.scale(scale, 1);
+    ctx.scale(unit / natural, 1);
     ctx.fillText(text, 0, 0);
     ctx.restore();
   }
@@ -71,21 +78,29 @@ function makeNameRing(radius, height) {
   texture.wrapS = THREE.RepeatWrapping;
   texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-  const mesh = new THREE.Mesh(
-    new THREE.CylinderGeometry(radius, radius, height, 96, 1, true),
-    new THREE.MeshBasicMaterial({
-      map: texture,
-      transparent: true,
-      side: THREE.DoubleSide,
-      depthWrite: false,       // the bust still occludes it, but it never
-      toneMapped: false        // fights itself where front meets back
-    })
-  );
-  return mesh;
+  const geometry = new THREE.CylinderGeometry(radius, radius, height, 128, 1, true);
+  const shell = (side, opacity) => new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    opacity,
+    side,
+    depthWrite: false,
+    toneMapped: false
+  }));
+
+  const group = new THREE.Group();
+  const front = shell(THREE.FrontSide, 1);
+  const back = shell(THREE.BackSide, .16);
+  back.renderOrder = 1;
+  front.renderOrder = 2;
+  group.add(back, front);
+
+  // A slight tilt reads as an orbit rather than a sash across the chest.
+  group.rotation.x = .13;
+  group.rotation.z = -.05;
+  return group;
 }
 
-/* The model carries no material of its own, so it takes the page's:
-   plaster on cream, cold stone on near black. */
 function isDark() { return root.classList.contains("dark"); }
 
 function applyTheme() {
@@ -145,7 +160,7 @@ function frame() {
   }
 
   if (ring && ring.visible) {
-    ringSpin += .0016;
+    ringSpin += .0011;
     ring.rotation.y = ringSpin + eased.x * .5;   // the pointer nudges it too
   }
 
@@ -178,8 +193,8 @@ new GLTFLoader().load("assets/model/bust.glb", (gltf) => {
   scene.add(bust);
 
   // Sits across the chest rather than the face, so he stays readable.
-  ring = makeNameRing(Math.max(size.x, size.z) * .95, size.y * .24);
-  ring.position.y = -size.y * .17;
+  ring = makeNameRing(Math.max(size.x, size.z) * 1.02, size.y * .17);
+  ring.position.y = -size.y * .14;
   scene.add(ring);
 
   applyTheme();
