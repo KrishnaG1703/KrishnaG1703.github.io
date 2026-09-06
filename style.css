@@ -21,6 +21,9 @@
 
   --serif: "Playfair Display", Georgia, serif;
   --vogue: "Bodoni Moda", "Didot", "Playfair Display", Georgia, serif;
+  /* Light theme display face. Lumaire is commercial and self-hosted; until
+     its files are in assets/fonts it falls back to Italiana. */
+  --display: "Lumaire", "Italiana", "Bodoni Moda", Georgia, serif;
   --sans: "DM Sans", Arial, sans-serif;
   --mono: "DM Mono", monospace;
 
@@ -41,6 +44,16 @@ html.dark {
   --blue: #8eafff;
   --green: #7dcc9e;
 }
+
+/* Drop licensed Lumaire files into assets/fonts and uncomment to use them.
+@font-face {
+  font-family: "Lumaire";
+  src: url("assets/fonts/lumaire.woff2") format("woff2"),
+       url("assets/fonts/lumaire.woff") format("woff");
+  font-weight: 400;
+  font-display: swap;
+}
+*/
 
 /* ---------- 2. base ---------- */
 * { box-sizing: border-box; }
@@ -1267,4 +1280,150 @@ a { color: inherit; text-decoration: none; }
   }
   .line > span { transform: none; }
   [data-reveal], [data-reveal-stagger] > * { opacity: 1; transform: none; }
+}
+
+
+/* ============================================================
+   13. light theme
+   The dark theme keeps the cinematic treatment: a fanned deck of cards
+   over a drifting field. Light is set as editorial print instead, so the
+   two themes read as two designs rather than one design inverted.
+   ============================================================ */
+
+html:not(.dark) {
+  --serif: var(--display);
+}
+
+/* ---- hero: rules instead of a drifting field ---- */
+html:not(.dark) .hero__canvas { display: none; }
+
+/* a ruled column grid, the way a page is set before type goes on it */
+html:not(.dark) .hero__system::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--line) 0 1px,
+    transparent 1px 25%
+  );
+  opacity: .5;
+  -webkit-mask-image: linear-gradient(#000 45%, transparent 92%);
+  mask-image: linear-gradient(#000 45%, transparent 92%);
+}
+
+html:not(.dark) .hero__name {
+  font-weight: 400;
+  letter-spacing: -.02em;
+}
+
+html:not(.dark) .hero__name em {
+  font-weight: 400;
+  letter-spacing: -.02em;
+}
+
+/* ---- work: an index, not a deck ---- */
+html:not(.dark) .deck {
+  position: relative;
+  height: auto;
+  display: block;
+  perspective: none;
+  border-top: 1px solid var(--ink);
+}
+
+html:not(.dark) .project {
+  position: relative;
+  width: 100%;
+  height: auto;
+  min-height: 132px;
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr) minmax(0, 42%);
+  align-items: center;
+  gap: 30px;
+  padding: 30px 26px 30px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+  transition: color .45s var(--ease), padding-left .5s var(--ease);
+}
+
+/* the artwork arrives as a band across the whole row */
+html:not(.dark) .project::before {
+  inset: 0;
+  border-radius: 0;
+  background: linear-gradient(90deg, rgba(8, 8, 8, .82), rgba(8, 8, 8, .45)), var(--image) center/cover;
+}
+
+html:not(.dark) .project:hover {
+  color: #fff;
+  padding-left: 26px;
+  box-shadow: none;
+}
+
+html:not(.dark) .project::after { display: none; }
+
+html:not(.dark) .project__top {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+html:not(.dark) .project__title {
+  margin: 0;
+  gap: 7px;
+}
+
+html:not(.dark) .project__title em {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(38px, 5.4vw, 76px);
+  line-height: .95;
+  letter-spacing: -.02em;
+}
+
+html:not(.dark) .project__bottom {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  justify-content: space-between;
+}
+
+html:not(.dark) .project:hover .project__bottom { border-color: transparent; }
+
+/* ---- section heads and the rest pick up the display face ---- */
+html:not(.dark) .section-head h2,
+html:not(.dark) .foot__title,
+html:not(.dark) .reveal__title {
+  font-weight: 400;
+  letter-spacing: -.02em;
+}
+
+html:not(.dark) .gw__role,
+html:not(.dark) .gw__areas h3,
+html:not(.dark) .stack__row dt,
+html:not(.dark) .stat__num {
+  font-weight: 400;
+}
+
+@media (max-width: 860px) {
+  /* Stacked rather than columnar: at this width the index column starved and
+     broke "01 / APP_001" across three lines. */
+  html:not(.dark) .project {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    min-height: 0;
+    padding: 22px 16px 22px 0;
+  }
+  html:not(.dark) .project__top {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    width: 100%;
+  }
+  html:not(.dark) .project__bottom { margin-top: 4px; }
+  html:not(.dark) .project:hover { padding-left: 16px; }
+  html:not(.dark) .project__title em { font-size: clamp(34px, 11vw, 52px); }
 }
