@@ -1296,7 +1296,7 @@ html:not(.dark) {
   --serif: var(--display);
 }
 
-/* ---- hero: rules instead of a drifting field ---- */
+/* ---- hero: a title page, not a landing screen ---- */
 html:not(.dark) .hero__canvas { display: none; }
 
 /* a ruled column grid, the way a page is set before type goes on it */
@@ -1309,20 +1309,94 @@ html:not(.dark) .hero__system::after {
     var(--line) 0 1px,
     transparent 1px 25%
   );
-  opacity: .5;
-  -webkit-mask-image: linear-gradient(#000 45%, transparent 92%);
-  mask-image: linear-gradient(#000 45%, transparent 92%);
+  opacity: .45;
+  -webkit-mask-image: linear-gradient(#000 40%, transparent 90%);
+  mask-image: linear-gradient(#000 40%, transparent 90%);
 }
 
+html:not(.dark) .hero {
+  justify-content: flex-start;
+  gap: 0;
+  padding-top: clamp(72px, 8vh, 104px);
+  padding-bottom: 26px;
+}
+
+/* masthead: meta ruled off top and bottom, running the full measure */
+html:not(.dark) .hero__top {
+  padding: 14px 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--line);
+}
+
+/* the name is the page, so it takes the space between the rules */
 html:not(.dark) .hero__name {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0;
+  padding: 2vh 0;
   font-weight: 400;
-  letter-spacing: -.03em;
+  letter-spacing: -.035em;
 }
 
-html:not(.dark) .hero__name em {
+/* the lower band is three columns of a contents page */
+html:not(.dark) .hero__foot {
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 4vw;
+  padding-top: 22px;
+  border-top: 1px solid var(--ink);
+  align-items: start;
+}
+
+html:not(.dark) .hero__col {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 36px;
+  align-items: start;
+}
+
+html:not(.dark) .hero__lede {
+  grid-column: 1;
+  grid-row: 1;
+  max-width: 30ch;
+}
+
+html:not(.dark) .hero__meta {
+  grid-column: 1;
+  grid-row: 2;
+  margin-top: 14px;
+}
+
+html:not(.dark) .hero__actions {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  flex-direction: column;
+  align-items: stretch;
+  margin: 0;
+}
+
+html:not(.dark) .hero__actions .round-link { justify-content: space-between; }
+
+/* the index reads as a table of contents */
+html:not(.dark) .hero__index { border-top: 0; }
+
+/* Keep the base four-column row: overriding it to three left the arrow
+   with no track and wrapped it onto a line of its own. */
+html:not(.dark) .hero__index button {
+  gap: 10px;
+  padding: 11px 0;
+}
+
+html:not(.dark) .hero__index button::before { inset: 0 -10px; }
+
+html:not(.dark) .hero__index b {
+  font-family: var(--display);
   font-weight: 400;
   letter-spacing: -.02em;
 }
+
+html:not(.dark) .hero__scroll { display: none; }
 
 /* ---- work: an editorial spread, not a deck ---- */
 html:not(.dark) .deck {
@@ -1445,6 +1519,9 @@ html:not(.dark) .stat__num {
 }
 
 @media (max-width: 860px) {
+  html:not(.dark) .hero__col { grid-template-columns: minmax(0, 1fr); }
+  html:not(.dark) .hero__actions { grid-column: 1; grid-row: auto; margin-top: 20px; }
+
   /* The spread stacks: plate on top, type beneath it. */
   html:not(.dark) .project {
     grid-template-columns: minmax(0, 1fr);
