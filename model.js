@@ -128,8 +128,11 @@ function frame() {
   eased.y += (pointer.y - eased.y) * .045;
 
   if (bust) {
-    bust.rotation.y = eased.x * .7;
-    bust.rotation.x = eased.y * .28;
+    // A fifth of the travel he had. Both axes scale together so the motion
+    // keeps its proportions; at the old vertical figure the slight up and
+    // down tilt would have become the larger of the two.
+    bust.rotation.y = eased.x * .14;
+    bust.rotation.x = eased.y * .056;
   }
 
   renderer.render(scene, camera);
