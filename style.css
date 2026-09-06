@@ -804,11 +804,46 @@ a { color: inherit; text-decoration: none; }
 .gw__body .text-coral,
 .gw__body .text-green { font-weight: 500; }
 
-.gw__certs {
-  list-style: none;
-  margin: 24px 0 0;
+/* The award is not a certificate, so it gets its own line above them
+   rather than another chip in the row. */
+.gw__award {
+  margin: 26px 0 0;
   padding: 20px 0 0;
   border-top: 1px solid var(--line);
+}
+
+.gw__award-label {
+  display: block;
+  margin-bottom: 8px;
+  font: 10px var(--mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--coral);
+}
+
+.gw__award strong {
+  display: block;
+  font: 400 clamp(20px, 2vw, 25px)/1.2 var(--serif);
+  font-weight: 500;
+  letter-spacing: -.035em;
+  color: var(--ink);
+}
+
+.gw__award-org {
+  display: block;
+  margin-top: 5px;
+  font: 10px var(--mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+html:not(.dark) .gw__award strong { font-weight: 400; }
+
+.gw__certs {
+  list-style: none;
+  margin: 22px 0 0;
+  padding: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
