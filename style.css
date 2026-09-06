@@ -22,8 +22,10 @@
   --serif: "Playfair Display", Georgia, serif;
   --vogue: "Bodoni Moda", "Didot", "Playfair Display", Georgia, serif;
   /* Light theme display face. Lumaire is commercial and self-hosted; until
-     its files are in assets/fonts it falls back to Italiana. */
-  --display: "Lumaire", "Italiana", "Bodoni Moda", Georgia, serif;
+     its files are in assets/fonts this falls back to Instrument Serif.
+     To try another, change the second name here and the family in the
+     Google Fonts link in index.html. */
+  --display: "Lumaire", "Instrument Serif", "Bodoni Moda", Georgia, serif;
   --sans: "DM Sans", Arial, sans-serif;
   --mono: "DM Mono", monospace;
 
@@ -1314,7 +1316,7 @@ html:not(.dark) .hero__system::after {
 
 html:not(.dark) .hero__name {
   font-weight: 400;
-  letter-spacing: -.02em;
+  letter-spacing: -.03em;
 }
 
 html:not(.dark) .hero__name em {
@@ -1379,9 +1381,9 @@ html:not(.dark) .project__title {
 html:not(.dark) .project__title em {
   font-family: var(--display);
   font-weight: 400;
-  font-size: clamp(38px, 5.4vw, 76px);
+  font-size: clamp(40px, 5.6vw, 80px);
   line-height: .95;
-  letter-spacing: -.02em;
+  letter-spacing: -.03em;
 }
 
 html:not(.dark) .project__bottom {
