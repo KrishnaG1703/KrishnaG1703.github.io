@@ -280,6 +280,25 @@ a { color: inherit; text-decoration: none; }
 /* The field occupies the upper right only — it can then never compete with
    the name on the left or the work index below it. The mask softens the two
    edges that meet content. */
+/* The bust sits in the right half of the hero, opposite the type. It fades
+   in only once the model is actually on screen, so a slow load or a failed
+   one simply leaves the hero as it was. */
+.hero__model {
+  position: absolute;
+  /* stops above the foot band: at full height the bust sat on top of the
+     work index in the lower right */
+  inset: 0 0 46% auto;
+  width: min(52%, 620px);
+  opacity: 0;
+  transition: opacity 1.1s var(--ease);
+  pointer-events: none;
+}
+
+.has-model .hero__model { opacity: 1; }
+
+/* with a bust in frame the drifting field is one thing too many */
+.has-model .hero__canvas { display: none; }
+
 .hero__canvas {
   position: absolute;
   inset: 0;
@@ -1297,6 +1316,9 @@ html:not(.dark) .gw__award strong { font-weight: 400; }
   .hero__actions .round-link { flex: 1 1 auto; justify-content: space-between; }
   .hero__coordinate { display: none; }
   .hero__canvas { opacity: .45; }
+  /* on a phone the bust would sit behind the type, so it goes */
+  .hero__model { display: none; }
+  html:not(.dark) .hero__system::after { right: 0; }
   .hero__scroll { display: none; }
   .hero__index b { font-size: 22px; }
   .peek { display: none; }
@@ -1359,6 +1381,10 @@ html:not(.dark) {
 
 /* ---- hero: rules instead of a drifting field ---- */
 html:not(.dark) .hero__canvas { display: none; }
+
+/* the rules read as the sheet the sculpture stands on, so they stop where
+   the bust begins */
+html:not(.dark) .hero__system::after { right: 46%; }
 
 /* a ruled column grid, the way a page is set before type goes on it */
 html:not(.dark) .hero__system::after {
