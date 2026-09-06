@@ -595,32 +595,6 @@ a { color: inherit; text-decoration: none; }
 
 .peek.is-visible { opacity: 1; transform: scale(1) rotate(-2deg); }
 
-/* .hero > *:not(.hero__system) sets position:relative at a higher
-   specificity than this rule's class, so without the child combinator the
-   hint stayed in flow and space-between treated it as a third item,
-   pushing the foot band into the middle of the hero. */
-.hero > .hero__scroll {
-  position: absolute;
-  left: var(--gutter);
-  bottom: 34px;
-  width: 1px;
-  height: 54px;
-  background: var(--line);
-  overflow: hidden;
-}
-.hero__scroll::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--coral);
-  animation: scrollHint 2.2s var(--ease) infinite;
-}
-@keyframes scrollHint {
-  0%   { transform: translateY(-100%); }
-  55%  { transform: translateY(0); }
-  100% { transform: translateY(100%); }
-}
-
 /* ---------- 6. marquee ---------- */
 .marquee {
   display: flex;
@@ -1383,8 +1357,29 @@ html:not(.dark) .gw__award strong { font-weight: 400; }
   .hero__canvas { opacity: .45; }
   /* on a phone the bust would sit behind the type, so it goes */
   .hero__model { display: none; }
+
+  /* With him hidden there is nothing for the name to wrap around, so it
+     goes back to being the hero's heading instead of two layers stacked
+     on the same spot, which put Ganga on top of the lede. */
+  .dark.has-model .hero__name {
+    position: static;
+    inset: auto;
+    display: block;
+    font: 600 clamp(68px, 20vw, 112px)/.72 var(--serif);
+    letter-spacing: -.09em;
+    text-align: left;
+    color: var(--ink);
+  }
+
+  .dark.has-model .hero__name .line {
+    overflow: hidden;
+    line-height: 1.08;
+  }
+
+  .dark.has-model .hero__name .line + .line { margin-top: -.36em; }
+  .dark.has-model .hero__name .line:nth-child(2) { opacity: 1; }
+  .dark.has-model .hero__name-echo { display: none; }
   html:not(.dark) .hero__system::after { right: 0; }
-  .hero__scroll { display: none; }
   .hero__index b { font-size: 22px; }
   .peek { display: none; }
 
