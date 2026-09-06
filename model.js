@@ -87,8 +87,8 @@ function resize() {
     // and swallow clicks on the calls to action.
     const viewH = 2 * Math.tan((camera.fov * Math.PI / 180) / 2) * distance;
     const viewW = viewH * camera.aspect;
-    const shiftX = isDark() ? viewW * .04 : 0;
-    const shiftY = isDark() ? viewH * .10 : 0;
+    const shiftX = isDark() ? viewW * .02 : 0;
+    const shiftY = isDark() ? viewH * .05 : 0;
 
     camera.position.set(-shiftX, size.y * .06 + shiftY, distance);
     camera.lookAt(-shiftX, shiftY, 0);
