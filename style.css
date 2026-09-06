@@ -965,20 +965,24 @@ a { color: inherit; text-decoration: none; }
 .stat:nth-child(3) .stat__num { color: var(--green); }
 
 /* A single figure carries the column on its own, so it is set as a
-   statement rather than left as one filled cell in an empty grid. */
-.stats--single { grid-template-columns: minmax(0, 1fr); }
+   statement rather than left as one filled cell in an empty grid. The box
+   hugs its contents: stretched across the column it was mostly empty. */
+.stats--single {
+  grid-template-columns: minmax(0, 1fr);
+  width: fit-content;
+}
 
-.stats--single .stat { padding: 34px 30px 38px; }
+.stats--single .stat { padding: 22px 26px 24px; }
 
 .stats--single .stat__num {
-  font-size: clamp(86px, 12vw, 168px);
-  line-height: .86;
+  font-size: clamp(68px, 8vw, 108px);
+  line-height: .82;
   color: var(--coral);
 }
 
 .stats--single .stat__label {
-  margin-top: 18px;
-  font-size: 11px;
+  margin-top: 12px;
+  font-size: 10px;
   letter-spacing: .12em;
 }
 .stat__num sup { font-size: .42em; vertical-align: super; color: var(--coral); }
@@ -1268,8 +1272,10 @@ a { color: inherit; text-decoration: none; }
   .project__title em { font-size: 40px; }
 
   .stats { grid-template-columns: 1fr 1fr; }
+  /* single column here too, or the two 1fr tracks from .stats above widen
+     the fit-content box to twice what it needs */
   .stats--single { grid-template-columns: minmax(0, 1fr); }
-  .stats--single .stat { padding: 26px 22px 30px; }
+  .stats--single .stat { padding: 20px 22px 22px; }
 
   .gw__grid { grid-template-columns: 1fr; gap: 30px; margin-top: 42px; }
   .gw__lead { padding: 22px 20px 24px; }
