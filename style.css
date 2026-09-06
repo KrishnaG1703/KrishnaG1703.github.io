@@ -305,6 +305,9 @@ a { color: inherit; text-decoration: none; }
 .dark.has-model .hero__model {
   inset: 0 0 20% 0;
   width: 100%;
+  /* takes the pointer so hovering him can bring the light up; it stops
+     above the foot band, so nothing there stops being clickable */
+  pointer-events: auto;
 }
 
 .dark.has-model .hero__name,
@@ -327,9 +330,13 @@ a { color: inherit; text-decoration: none; }
 
 .dark.has-model .hero__name-echo {
   z-index: 2;
-  /* only the lower part is drawn, so it appears to pass in front of him */
-  clip-path: inset(58% 0 0 0);
 }
+
+/* Each word appears once: Krishna behind him, Ganga in front. The other
+   half of each copy is held in place so the two stay registered, but not
+   drawn. */
+.dark.has-model .hero__name .line:nth-child(2) { opacity: 0; }
+.dark.has-model .hero__name-echo span:first-child { opacity: 0; }
 
 .dark.has-model .hero__name .line,
 .dark.has-model .hero__name-echo span {

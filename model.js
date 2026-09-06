@@ -35,13 +35,35 @@ scene.add(hemi, key, fill, rim);
 let bust = null;
 let material = null;
 
+// He sits greyed back until you put the pointer on him.
+const TONE = {
+  dim:   { color: new THREE.Color(0x57534b), key: 1.15, hemi: .85, rim: .45 },
+  lit:   { color: new THREE.Color(0xc9bda6), key: 2.7,  hemi: 2.0, rim: 1.7 }
+};
+let warmth = 0;        // 0 dim, 1 lit
+let warmthTarget = 0;
+
 function isDark() { return root.classList.contains("dark"); }
 
 function applyTheme() {
   if (!material) return;
-  const dark = isDark();
-  material.color.set(dark ? 0xb4a893 : 0x9a8f78);
-  rim.intensity = dark ? 1.6 : 1.15;
+  if (!isDark()) {
+    // Light keeps the plain plaster treatment.
+    material.color.set(0x9a8f78);
+    hemi.intensity = 1.9;
+    key.intensity = 2.5;
+    rim.intensity = 1.15;
+    return;
+  }
+  applyWarmth();
+}
+
+function applyWarmth() {
+  if (!material) return;
+  material.color.copy(TONE.dim.color).lerp(TONE.lit.color, warmth);
+  key.intensity = TONE.dim.key + (TONE.lit.key - TONE.dim.key) * warmth;
+  hemi.intensity = TONE.dim.hemi + (TONE.lit.hemi - TONE.dim.hemi) * warmth;
+  rim.intensity = TONE.dim.rim + (TONE.lit.rim - TONE.dim.rim) * warmth;
 }
 
 const size = new THREE.Vector3();
@@ -75,6 +97,12 @@ hero.addEventListener("pointermove", (event) => {
 
 hero.addEventListener("pointerleave", () => { pointer.x = 0; pointer.y = 0; });
 
+// Hovering him brings the light up. The canvas takes the pointer only in
+// the dark treatment, and only above the foot band, so nothing below it
+// stops being clickable.
+canvas.addEventListener("pointerenter", () => { warmthTarget = 1; });
+canvas.addEventListener("pointerleave", () => { warmthTarget = 0; });
+
 let running = false;
 let visible = true;
 
@@ -85,6 +113,11 @@ function frame() {
 
   // The bust holds still. What moves is the key light, raking slowly across
   // him, which reads as a room rather than as a turntable.
+  if (isDark() && Math.abs(warmth - warmthTarget) > .001) {
+    warmth += (warmthTarget - warmth) * .07;
+    applyWarmth();
+  }
+
   clock += .004;
   key.position.set(Math.sin(clock) * 2.6 + .6, 2.6 + Math.sin(clock * .7) * .5, 2.4);
   rim.position.set(Math.sin(clock + 2.2) * -2.8, 1.5, -2.6);
