@@ -158,16 +158,20 @@ function countUp(el) {
 
   const target = Number(el.dataset.count);
   const suffix = el.dataset.suffix || "";
-  if (reduceMotion.matches) { el.textContent = target + suffix; return; }
+  // Some figures are not whole numbers, so the counter formats rather than rounds.
+  const decimals = Number(el.dataset.decimals || 0);
+  const show = (value) => value.toFixed(decimals) + suffix;
+
+  if (reduceMotion.matches) { el.textContent = show(target); return; }
 
   const duration = 1100;
   const start = performance.now();
   const step = (now) => {
     const t = Math.min((now - start) / duration, 1);
     const eased = 1 - Math.pow(1 - t, 3);
-    el.textContent = Math.round(target * eased) + suffix;
+    el.textContent = show(target * eased);
     if (t < 1) requestAnimationFrame(step);
-    else el.textContent = target + suffix;
+    else el.textContent = show(target);
   };
   requestAnimationFrame(step);
 }
