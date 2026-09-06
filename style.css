@@ -351,6 +351,10 @@ a { color: inherit; text-decoration: none; }
 .dark.has-model .hero__name em,
 .dark.has-model .hero__name-echo em { font-style: italic; font-weight: 500; }
 
+/* Ganga carries the accent, so the two words read as two things rather
+   than one long line broken in half. */
+.dark.has-model .hero__name-echo em { color: var(--coral); }
+
 /* the name carries the hero now, so the flat field stays out of it */
 .dark.has-model .hero__canvas { display: none; }
 

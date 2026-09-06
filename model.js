@@ -80,8 +80,18 @@ function resize() {
   if (bust) {
     const wide = isDark() ? Math.max(size.x, size.z) * 2.6 : size.x;
     const fit = Math.max(size.y, wide / camera.aspect);
-    camera.position.set(0, size.y * .06, fit * (isDark() ? 1.62 : 1.55));
-    camera.lookAt(0, 0, 0);
+    const distance = fit * (isDark() ? 1.62 : 1.55);
+
+    // Nudge him down and right by shifting the camera the other way, rather
+    // than moving the canvas: the canvas would then reach over the foot band
+    // and swallow clicks on the calls to action.
+    const viewH = 2 * Math.tan((camera.fov * Math.PI / 180) / 2) * distance;
+    const viewW = viewH * camera.aspect;
+    const shiftX = isDark() ? viewW * .04 : 0;
+    const shiftY = isDark() ? viewH * .10 : 0;
+
+    camera.position.set(-shiftX, size.y * .06 + shiftY, distance);
+    camera.lookAt(-shiftX, shiftY, 0);
   }
   camera.updateProjectionMatrix();
 }
