@@ -34,13 +34,67 @@ scene.add(hemi, key, fill, rim);
 
 let bust = null;
 let material = null;
+let ring = null;
+let ringSpin = 0;
+
+/* The name is painted into a texture and wrapped onto an open cylinder
+   around the bust, so it genuinely passes behind his head rather than
+   being drawn over the top of him. */
+function makeNameRing(radius, height) {
+  const REPEATS = 4;
+  const text = "KRISHNA GANGA \u00B7 ";
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 4096;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.font = "500 170px 'Playfair Display', Georgia, serif";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#f6f0e0";
+
+  const unit = canvas.width / REPEATS;
+  const width = ctx.measureText(text).width;
+  const scale = unit / width;
+
+  for (let i = 0; i < REPEATS; i++) {
+    ctx.save();
+    ctx.translate(i * unit, canvas.height / 2);
+    ctx.scale(scale, 1);
+    ctx.fillText(text, 0, 0);
+    ctx.restore();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+  const mesh = new THREE.Mesh(
+    new THREE.CylinderGeometry(radius, radius, height, 96, 1, true),
+    new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      side: THREE.DoubleSide,
+      depthWrite: false,       // the bust still occludes it, but it never
+      toneMapped: false        // fights itself where front meets back
+    })
+  );
+  return mesh;
+}
 
 /* The model carries no material of its own, so it takes the page's:
    plaster on cream, cold stone on near black. */
+function isDark() { return root.classList.contains("dark"); }
+
 function applyTheme() {
   if (!material) return;
-  const dark = root.classList.contains("dark");
-  material.color.set(dark ? 0xa89d86 : 0x9a8f78);
+  const dark = isDark();
+  material.color.set(dark ? 0xb4a893 : 0x9a8f78);
+  rim.intensity = dark ? 1.6 : 1.15;
+  // The orbiting name belongs to the dark treatment only for now.
+  if (ring) ring.visible = dark;
 }
 
 const size = new THREE.Vector3();
@@ -53,9 +107,11 @@ function resize() {
   camera.aspect = width / height;
 
   // Frame the bust so it holds the same share of the panel at any size.
+  // With the ring around him he needs more room, and he sits centred.
   if (bust) {
-    const fit = Math.max(size.y, size.x / camera.aspect);
-    camera.position.set(0, size.y * .06, fit * 1.55);
+    const wide = isDark() ? Math.max(size.x, size.z) * 3.1 : size.x;
+    const fit = Math.max(size.y, wide / camera.aspect);
+    camera.position.set(0, size.y * .02, fit * (isDark() ? 1.5 : 1.55));
     camera.lookAt(0, 0, 0);
   }
   camera.updateProjectionMatrix();
@@ -88,6 +144,11 @@ function frame() {
     bust.rotation.x = eased.y * .28;
   }
 
+  if (ring && ring.visible) {
+    ringSpin += .0016;
+    ring.rotation.y = ringSpin + eased.x * .5;   // the pointer nudges it too
+  }
+
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
 }
@@ -116,6 +177,11 @@ new GLTFLoader().load("assets/model/bust.glb", (gltf) => {
   bust = object;
   scene.add(bust);
 
+  // Sits across the chest rather than the face, so he stays readable.
+  ring = makeNameRing(Math.max(size.x, size.z) * .95, size.y * .24);
+  ring.position.y = -size.y * .17;
+  scene.add(ring);
+
   applyTheme();
   resize();
   root.classList.add("has-model");
@@ -134,6 +200,7 @@ addEventListener("resize", resize, { passive: true });
 
 new MutationObserver(() => {
   applyTheme();
+  resize();
   if (!running) renderer.render(scene, camera);
 }).observe(root, { attributes: true, attributeFilter: ["class"] });
 

@@ -296,6 +296,30 @@ a { color: inherit; text-decoration: none; }
 
 .has-model .hero__model { opacity: 1; }
 
+/* Dark treatment: the bust takes the centre of the hero and the name
+   orbits him in the scene, so the heading is no longer drawn in the page.
+   It stays in the DOM for search and screen readers, and dropping it out
+   of flow lets the masthead and the foot band settle to the edges with
+   the scene between them. */
+/* the wrapper is cropped for the flat field's sake; the centred scene
+   needs the whole hero back */
+.dark.has-model .hero__system { inset: 0; }
+
+.dark.has-model .hero__model {
+  inset: 0 0 32% 0;
+  width: 100%;
+}
+
+.dark.has-model .hero__name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* with a bust in frame the drifting field is one thing too many */
 .has-model .hero__canvas { display: none; }
 
@@ -534,7 +558,11 @@ a { color: inherit; text-decoration: none; }
 
 .peek.is-visible { opacity: 1; transform: scale(1) rotate(-2deg); }
 
-.hero__scroll {
+/* .hero > *:not(.hero__system) sets position:relative at a higher
+   specificity than this rule's class, so without the child combinator the
+   hint stayed in flow and space-between treated it as a third item,
+   pushing the foot band into the middle of the hero. */
+.hero > .hero__scroll {
   position: absolute;
   left: var(--gutter);
   bottom: 34px;
