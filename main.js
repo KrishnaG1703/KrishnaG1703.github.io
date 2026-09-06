@@ -298,6 +298,7 @@ const revealTitle = document.getElementById("revealTitle");
 const revealEyebrow = document.getElementById("revealEy");
 const revealDescription = document.getElementById("revealDescription");
 const revealMeta = document.getElementById("revealMeta");
+const revealLinks = document.getElementById("revealLinks");
 const revealApp = document.getElementById("revealApp");
 const revealAppFrame = document.getElementById("revealAppFrame");
 const revealDuo = document.getElementById("revealDuo");
@@ -331,10 +332,21 @@ function openReveal(project) {
     .filter(Boolean)
     .map((tag) => `<span>${tag.trim()}</span>`)
     .join("");
-  if (webSrc) {
-    revealMeta.insertAdjacentHTML("beforeend",
-      `<a class="round-link" style="margin-top:14px" href="${webSrc}" target="_blank" rel="noopener">Visit site <span aria-hidden="true">↗</span></a>`);
-  }
+
+  // A project can carry several destinations, such as both app stores.
+  // Falls back to the single site link when it does not.
+  const links = (project.dataset.links || "")
+    .split(";")
+    .filter(Boolean)
+    .map((pair) => pair.split("|"))
+    .filter(([label, href]) => label && href);
+
+  if (!links.length && webSrc) links.push(["Visit site", webSrc]);
+
+  revealLinks.innerHTML = links
+    .map(([label, href]) =>
+      `<a class="round-link" href="${href.trim()}" target="_blank" rel="noopener">${label.trim()} <span aria-hidden="true">↗</span></a>`)
+    .join("");
 
   const hasVisual = Boolean(appSrc);
   revealDuo.hidden = !hasVisual;
