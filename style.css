@@ -507,6 +507,33 @@ a { color: inherit; text-decoration: none; }
 .round-link--ghost:hover span { transform: translate(3px, -3px); }
 
 /* ---- above-the-fold work index ---- */
+.hero__now-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+.hero__now-label span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 60%, transparent);
+  animation: nowPulse 2.4s ease-out infinite;
+}
+
+@keyframes nowPulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 55%, transparent); }
+  70%  { box-shadow: 0 0 0 7px color-mix(in srgb, var(--green) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 0%, transparent); }
+}
+
 .hero__index {
   list-style: none;
   margin: 0;
