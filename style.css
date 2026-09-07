@@ -1976,3 +1976,46 @@ html:not(.dark) .stat__num {
   html:not(.dark) .project:hover { padding-left: 16px; }
   html:not(.dark) .project__title em { font-size: clamp(34px, 11vw, 52px); }
 }
+
+/* ---------- 15. touch: the artwork is not behind a hover ----------
+   Every card carries its artwork under a hover, which a finger cannot
+   perform. Where there is no hover the artwork is simply on, and the
+   states that rode with it come too. */
+@media (hover: none) {
+  .project::before { opacity: 1; }
+
+  .project,
+  html:not(.dark) .project {
+    color: #fff;
+    border-color: transparent;
+  }
+
+  .project__top,
+  .project__bottom,
+  .project__title small {
+    color: rgba(255, 255, 255, .8);
+  }
+
+  .project__title em,
+  .dark .project--rice .project__title em,
+  .dark .project--moksh .project__title em,
+  .dark .project--mecha .project__title em,
+  .project--rice .project__title em,
+  .project--moksh .project__title em,
+  .project--mecha .project__title em {
+    color: #fff;
+  }
+
+  .project__bottom { border-top-color: rgba(255, 255, 255, .3); }
+
+  /* The light row is a band of artwork rather than a rule between rows. */
+  html:not(.dark) .project {
+    border-bottom-color: transparent;
+    padding-left: 16px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  html:not(.dark) .project__bottom { border: 0; }
+}
