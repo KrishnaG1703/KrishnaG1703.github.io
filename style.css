@@ -1150,7 +1150,7 @@ html:not(.dark) .gw__award strong { font-weight: 400; }
 .foot__mail {
   position: relative;
   display: inline-block;
-  margin: 46px 0 90px;
+  margin: 46px 0 34px;
   padding-bottom: 6px;
   font-size: clamp(18px, 2.4vw, 36px);
   letter-spacing: -.045em;
@@ -1169,6 +1169,50 @@ html:not(.dark) .gw__award strong { font-weight: 400; }
   transition: transform .5s var(--ease);
 }
 .foot__mail:hover::after { transform: scaleX(0); transform-origin: left; }
+
+/* Email is the headline; call and LinkedIn sit under it so someone can pick
+   the channel that suits them rather than only writing. */
+.foot__channels {
+  list-style: none;
+  margin: 0 0 84px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 56px;
+}
+
+.foot__channels li {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.foot__channels i {
+  font: 10px var(--mono);
+  font-style: normal;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+.foot__channels a {
+  position: relative;
+  align-self: start;
+  padding-bottom: 4px;
+  font-size: clamp(15px, 1.5vw, 20px);
+  letter-spacing: -.01em;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+  transition: border-color .35s var(--ease);
+}
+
+.foot__channels a span {
+  display: inline-block;
+  font-size: .8em;
+  transition: transform .4s var(--ease);
+}
+
+.foot__channels a:hover { border-bottom-color: currentColor; }
+.foot__channels a:hover span { transform: translate(3px, -3px); }
 
 .foot__row {
   display: flex;
