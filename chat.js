@@ -21,7 +21,7 @@
       chip: "What does he build?",
       lines: [
         "He is an AI engineer: LLM systems that run in production, not demos. Agents, RAG pipelines, and the backend underneath them.",
-        "Two products shipped so far. <b>rice</b> logs Indian food from a photo, and <b>Moksh</b> is the Bhagavad Gita reimagined, out on both stores."
+        "<b>Moksh</b> is the Bhagavad Gita reimagined, out now on both stores. <b>rice</b>, an AI food log built for the way India eats, is finished and waiting on release."
       ],
       actions: [{ label: "See the work", jump: "#work" }]
     },
