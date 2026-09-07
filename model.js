@@ -35,15 +35,22 @@ scene.add(hemi, key, fill, rim);
 let bust = null;
 let material = null;
 
-// He sits greyed back until you put the pointer on him.
+// In dark he sits greyed back until you put the pointer on him. In light
+// he is lit from the start: on cream there is nothing for a dim bust to
+// stand against, and nothing to reward the hover with.
 const TONE = {
   dim:   { color: new THREE.Color(0x57534b), key: 1.15, hemi: .85, rim: .45 },
   lit:   { color: new THREE.Color(0xc9bda6), key: 2.7,  hemi: 2.0, rim: 1.7 }
 };
 let warmth = 0;        // 0 dim, 1 lit
 let warmthTarget = 0;
+let hovering = false;
+
+function isDark() { return root.classList.contains("dark"); }
 
 function applyTheme() {
+  warmthTarget = isDark() ? (hovering ? 1 : 0) : 1;
+  if (!isDark()) warmth = 1;   // no ramp into light: he is simply lit
   applyWarmth();
 }
 
@@ -96,10 +103,11 @@ hero.addEventListener("pointermove", (event) => {
 
 hero.addEventListener("pointerleave", () => { pointer.x = 0; pointer.y = 0; });
 
-// Hovering him brings the light up. The canvas takes the pointer only above
-// the foot band, so nothing below it stops being clickable.
-canvas.addEventListener("pointerenter", () => { warmthTarget = 1; });
-canvas.addEventListener("pointerleave", () => { warmthTarget = 0; });
+// Hovering him brings the light up in dark; in light he is already lit and
+// the hover changes nothing. The canvas takes the pointer only above the
+// foot band, so nothing below it stops being clickable.
+canvas.addEventListener("pointerenter", () => { hovering = true; applyTheme(); });
+canvas.addEventListener("pointerleave", () => { hovering = false; applyTheme(); });
 
 let running = false;
 let visible = true;
