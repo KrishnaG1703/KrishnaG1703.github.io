@@ -19,6 +19,9 @@ if (loader) {
       loader.classList.add("is-done");
       document.documentElement.classList.remove("is-loading");
       document.body.classList.add("is-ready");
+      // The wipe rides out on the loader clearing, so both themes are seen
+      // without a single frame being added to the wait.
+      setTimeout(() => document.dispatchEvent(new Event("loader:done")), 140);
     }, 260);
   };
 
@@ -52,7 +55,25 @@ const lerp = (a, b, t) => a + (b - a) * t;
 
 /* ---------- theme ---------- */
 const themeToggle = document.getElementById("themeToggle");
-if (localStorage.getItem("portfolio-theme") === "dark") root.classList.add("dark");
+const systemDark = matchMedia("(prefers-color-scheme: dark)");
+
+// The head script has already put the opposite theme on screen and left the
+// one we are heading for in data-theme.
+function targetTheme() { return root.dataset.theme === "dark" ? "dark" : "light"; }
+
+function applyStoredTheme(name) {
+  root.classList.toggle("dark", name === "dark");
+  root.dataset.theme = name;
+  syncTheme();
+}
+
+// With no choice of their own, the visitor follows their system. Someone who
+// has picked a side keeps it.
+systemDark.addEventListener("change", (event) => {
+  let saved = null;
+  try { saved = localStorage.getItem("portfolio-theme"); } catch (e) {}
+  if (!saved) applyStoredTheme(event.matches ? "dark" : "light");
+});
 
 function syncTheme() {
   const dark = root.classList.contains("dark");
@@ -65,7 +86,9 @@ syncTheme();
 
 function flipTheme() {
   root.classList.toggle("dark");
-  localStorage.setItem("portfolio-theme", root.classList.contains("dark") ? "dark" : "light");
+  const name = root.classList.contains("dark") ? "dark" : "light";
+  root.dataset.theme = name;
+  try { localStorage.setItem("portfolio-theme", name); } catch (e) {}
   syncTheme();
 }
 
@@ -84,6 +107,44 @@ themeToggle.addEventListener("click", (event) => {
     );
   });
 });
+
+/* ---------- theme intro ---------- */
+// One wipe, not a flicker: the site opens in the theme it is not keeping and
+// crosses to the real one as the loader clears. It never writes a preference,
+// so the system setting still governs the next visit.
+function introWipe() {
+  const target = targetTheme();
+  const already = root.classList.contains("dark") === (target === "dark");
+  if (already) return;
+
+  const settle = () => {
+    root.classList.toggle("dark", target === "dark");
+    syncTheme();
+  };
+
+  if (!document.startViewTransition || reduceMotion.matches) return settle();
+
+  const x = innerWidth / 2;
+  const y = innerHeight * .42;
+  const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+
+  document.startViewTransition(settle).ready.then(() => {
+    root.animate(
+      { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+      { duration: 900, easing: "cubic-bezier(.2,.8,.2,1)", pseudoElement: "::view-transition-new(root)" }
+    );
+  });
+}
+
+if (root.dataset.intro === "on") {
+  document.addEventListener("loader:done", introWipe, { once: true });
+  // No loader (a visitor with JS but the loader suppressed, or a stale cache
+  // that never fires it) still gets the theme it asked for.
+  setTimeout(() => {
+    if (root.dataset.intro === "on") { root.dataset.intro = "done"; introWipe(); }
+  }, 4200);
+  document.addEventListener("loader:done", () => { root.dataset.intro = "done"; }, { once: true });
+}
 
 /* ---------- phone menu ---------- */
 const burger = document.getElementById("navBurger");
