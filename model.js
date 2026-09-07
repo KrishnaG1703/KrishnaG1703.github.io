@@ -43,18 +43,7 @@ const TONE = {
 let warmth = 0;        // 0 dim, 1 lit
 let warmthTarget = 0;
 
-function isDark() { return root.classList.contains("dark"); }
-
 function applyTheme() {
-  if (!material) return;
-  if (!isDark()) {
-    // Light keeps the plain plaster treatment.
-    material.color.set(0x9a8f78);
-    hemi.intensity = 1.9;
-    key.intensity = 2.5;
-    rim.intensity = 1.15;
-    return;
-  }
   applyWarmth();
 }
 
@@ -78,17 +67,17 @@ function resize() {
   // Frame the bust so it holds the same share of the panel at any size.
   // He sits centred, sized against the name standing behind him.
   if (bust) {
-    const wide = isDark() ? Math.max(size.x, size.z) * 2.6 : size.x;
+    const wide = Math.max(size.x, size.z) * 2.6;
     const fit = Math.max(size.y, wide / camera.aspect);
-    const distance = fit * (isDark() ? 1.62 : 1.55);
+    const distance = fit * 1.62;
 
     // Nudge him down and right by shifting the camera the other way, rather
     // than moving the canvas: the canvas would then reach over the foot band
     // and swallow clicks on the calls to action.
     const viewH = 2 * Math.tan((camera.fov * Math.PI / 180) / 2) * distance;
     const viewW = viewH * camera.aspect;
-    const shiftX = isDark() ? viewW * .02 : 0;
-    const shiftY = isDark() ? viewH * .05 : 0;
+    const shiftX = viewW * .02;
+    const shiftY = viewH * .05;
 
     camera.position.set(-shiftX, size.y * .06 + shiftY, distance);
     camera.lookAt(-shiftX, shiftY, 0);
@@ -107,9 +96,8 @@ hero.addEventListener("pointermove", (event) => {
 
 hero.addEventListener("pointerleave", () => { pointer.x = 0; pointer.y = 0; });
 
-// Hovering him brings the light up. The canvas takes the pointer only in
-// the dark treatment, and only above the foot band, so nothing below it
-// stops being clickable.
+// Hovering him brings the light up. The canvas takes the pointer only above
+// the foot band, so nothing below it stops being clickable.
 canvas.addEventListener("pointerenter", () => { warmthTarget = 1; });
 canvas.addEventListener("pointerleave", () => { warmthTarget = 0; });
 
@@ -123,7 +111,7 @@ function frame() {
 
   // The bust holds still. What moves is the key light, raking slowly across
   // him, which reads as a room rather than as a turntable.
-  if (isDark() && Math.abs(warmth - warmthTarget) > .001) {
+  if (Math.abs(warmth - warmthTarget) > .001) {
     warmth += (warmthTarget - warmth) * .07;
     applyWarmth();
   }
