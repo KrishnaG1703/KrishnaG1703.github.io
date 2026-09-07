@@ -244,6 +244,120 @@ a { color: inherit; text-decoration: none; }
 
 .nav__links a:hover::after { transform: scaleX(1); transform-origin: left; }
 
+.nav__end {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Two rules that become an X. Hidden until the links leave the bar. */
+.nav__burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 34px;
+  height: 34px;
+  margin-right: -6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.nav__burger span {
+  display: block;
+  width: 22px;
+  height: 1px;
+  margin-left: auto;
+  background: var(--ink);
+  transition: transform .4s var(--ease), width .4s var(--ease), opacity .3s;
+}
+
+.nav__burger span:last-child { width: 14px; }
+
+.nav__burger[aria-expanded="true"] span:first-child { transform: translateY(3px) rotate(45deg); }
+.nav__burger[aria-expanded="true"] span:last-child { width: 22px; transform: translateY(-3px) rotate(-45deg); }
+
+/* ---- phone menu ---- */
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8vh;
+  padding: 120px var(--gutter) 44px;
+  background: var(--paper);
+  opacity: 0;
+  /* Not display alone: it has to stop taking clicks while it is invisible. */
+  visibility: hidden;
+  pointer-events: none;
+  /* visibility is a discrete property: without the explicit delays it would
+     flip halfway through the fade, which is also too late to take focus. */
+  transition: opacity .4s var(--ease), visibility 0s .4s;
+}
+
+.menu.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity .4s var(--ease), visibility 0s;
+}
+
+.menu__links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.menu__links a {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 6px 0;
+  font: 500 clamp(38px, 12vw, 62px)/1.05 var(--serif-hero);
+  letter-spacing: -.045em;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .5s var(--ease-out), transform .6s var(--ease-out);
+}
+
+.menu__links a i {
+  font: 10px var(--mono);
+  font-style: normal;
+  letter-spacing: .16em;
+  color: var(--soft);
+}
+
+.menu.is-open .menu__links a { opacity: 1; transform: none; }
+.menu.is-open .menu__links a:nth-child(2) { transition-delay: .05s; }
+.menu.is-open .menu__links a:nth-child(3) { transition-delay: .1s; }
+.menu.is-open .menu__links a:nth-child(4) { transition-delay: .15s; }
+.menu.is-open .menu__links a:nth-child(5) { transition-delay: .2s; }
+
+.menu__foot {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+  font: 12px var(--mono);
+  letter-spacing: .06em;
+  color: var(--soft);
+  opacity: 0;
+  transition: opacity .5s var(--ease-out) .24s;
+}
+
+.menu.is-open .menu__foot { opacity: 1; }
+.menu__foot a { align-self: start; }
+
+/* The bar stays above the panel so the close control is always reachable. */
+.menu-open .nav { z-index: 90; }
+.menu-open, .menu-open body { overflow: hidden; }
+
 .theme-toggle {
   justify-self: end;
   display: flex;
@@ -1421,7 +1535,9 @@ html:not(.dark) .gw__award strong { font-weight: 400; }
 @media (max-width: 700px) {
   :root { --gutter: 20px; }
   .nav { padding: 16px var(--gutter); }
-  .nav__links { gap: 16px; }
+  .nav__links { display: none; }
+  .nav__burger { display: flex; }
+  .menu { display: flex; }
   .theme-toggle { font-size: 0; gap: 0; }
   .theme-toggle span { width: 16px; height: 16px; }
 

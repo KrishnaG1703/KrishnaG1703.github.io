@@ -85,6 +85,66 @@ themeToggle.addEventListener("click", (event) => {
   });
 });
 
+/* ---------- phone menu ---------- */
+const burger = document.getElementById("navBurger");
+const menu = document.getElementById("menu");
+let menuOpen = false;
+let menuReturn = null;
+
+function setMenu(open) {
+  if (open === menuOpen) return;
+  menuOpen = open;
+  menu.classList.toggle("is-open", open);
+  menu.setAttribute("aria-hidden", String(!open));
+  burger.setAttribute("aria-expanded", String(open));
+  burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+  document.documentElement.classList.toggle("menu-open", open);
+
+  // The page behind is unreachable while the panel is over it, but the bar
+  // stays live so the close control can be tabbed to.
+  const main = document.querySelector("main");
+  const foot = document.querySelector(".foot");
+  if (open) { main.setAttribute("inert", ""); foot.setAttribute("inert", ""); }
+  else { main.removeAttribute("inert"); foot.removeAttribute("inert"); }
+
+  // The bar auto-hides on the way down the page. If it were still hidden the
+  // panel would open with no close control on screen.
+  if (open) {
+    nav.classList.remove("is-hidden");
+    navHidden = false;
+  }
+
+  if (open) {
+    menuReturn = document.activeElement;
+    // A task, not a frame: a hidden tab throttles frames, and the focus
+    // should not wait on one.
+    setTimeout(() => {
+      if (menuOpen) menu.querySelector("a").focus({ preventScroll: true });
+    }, 0);
+  } else if (menuReturn) {
+    menuReturn.focus({ preventScroll: true });
+    menuReturn = null;
+  }
+}
+
+burger.addEventListener("click", () => setMenu(!menuOpen));
+
+// A link closes it before the jump, or the panel would still be over the
+// section the visitor just asked for.
+menu.addEventListener("click", (event) => {
+  if (event.target.closest("a")) setMenu(false);
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && menuOpen) setMenu(false);
+});
+
+// Widening past the breakpoint puts the links back in the bar, so a panel
+// left open would sit over the page with nothing to close it.
+matchMedia("(min-width: 701px)").addEventListener("change", (event) => {
+  if (event.matches) setMenu(false);
+});
+
 /* ---------- scroll: progress bar + nav auto-hide ---------- */
 const nav = document.getElementById("nav");
 const progress = document.getElementById("progress");

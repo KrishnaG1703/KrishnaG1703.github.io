@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,600&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=73">
+<link rel="stylesheet" href="style.css?v=75">
 </head>
 <body>
 
@@ -37,8 +37,27 @@
     <a href="#about">About</a>
     <a href="#contact">Contact</a>
   </nav>
-  <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark theme" aria-pressed="false"><span></span> Theme</button>
+  <div class="nav__end">
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark theme" aria-pressed="false"><span></span> Theme</button>
+    <button class="nav__burger" id="navBurger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><span></span><span></span></button>
+  </div>
 </header>
+
+<!-- Phone menu. Hidden above 700px, where the links sit in the bar itself. -->
+<div class="menu" id="menu" aria-hidden="true">
+  <nav class="menu__links" aria-label="Sections">
+    <a href="#work"><i>01</i>Work</a>
+    <a href="#guidewire"><i>02</i>EY</a>
+    <a href="#stack"><i>03</i>Stack</a>
+    <a href="#about"><i>04</i>About</a>
+    <a href="#contact"><i>05</i>Contact</a>
+  </nav>
+  <div class="menu__foot">
+    <a href="mailto:krishna091718@gmail.com">krishna091718@gmail.com</a>
+    <a href="tel:+918618409464">+91 86184 09464</a>
+    <a href="https://www.linkedin.com/in/krishnaganga1703/" target="_blank" rel="noopener">LinkedIn <span aria-hidden="true">↗</span></a>
+  </div>
+</div>
 
 <main id="top">
 
@@ -308,7 +327,7 @@
   </div>
 </div>
 
-<script src="main.js?v=53"></script>
+<script src="main.js?v=57"></script>
 
 <script type="module" src="model.js?v=71"></script>
 </body>
