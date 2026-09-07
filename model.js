@@ -45,12 +45,15 @@ const TONE = {
 let warmth = 0;        // 0 dim, 1 lit
 let warmthTarget = 0;
 let hovering = false;
+// A touch screen has no hover, so the reveal would never fire and he would
+// stay grey for the whole visit. There he is simply lit.
+const canHover = matchMedia("(hover: hover)").matches;
 
 function isDark() { return root.classList.contains("dark"); }
 
 function applyTheme() {
-  warmthTarget = isDark() ? (hovering ? 1 : 0) : 1;
-  if (!isDark()) warmth = 1;   // no ramp into light: he is simply lit
+  warmthTarget = isDark() && canHover ? (hovering ? 1 : 0) : 1;
+  if (!isDark() || !canHover) warmth = 1;   // no ramp: he is simply lit
   applyWarmth();
 }
 
@@ -74,17 +77,22 @@ function resize() {
   // Frame the bust so it holds the same share of the panel at any size.
   // He sits centred, sized against the name standing behind him.
   if (bust) {
-    const wide = Math.max(size.x, size.z) * 2.6;
+    // On a wide hero he is framed loose, so the name has room either side of
+    // him. A phone band is nearly square and the name crosses him instead, so
+    // he is framed tight there or the fit-to-width term would shrink him to
+    // nothing.
+    const narrow = camera.aspect < 1.8;
+    const wide = Math.max(size.x, size.z) * (narrow ? 2.15 : 2.6);
     const fit = Math.max(size.y, wide / camera.aspect);
-    const distance = fit * 1.62;
+    const distance = fit * (narrow ? 1.5 : 1.62);
 
     // Nudge him down and right by shifting the camera the other way, rather
     // than moving the canvas: the canvas would then reach over the foot band
     // and swallow clicks on the calls to action.
     const viewH = 2 * Math.tan((camera.fov * Math.PI / 180) / 2) * distance;
     const viewW = viewH * camera.aspect;
-    const shiftX = viewW * .02;
-    const shiftY = viewH * .05;
+    const shiftX = viewW * (narrow ? 0 : .02);
+    const shiftY = viewH * (narrow ? .055 : .05);
 
     camera.position.set(-shiftX, size.y * .06 + shiftY, distance);
     camera.lookAt(-shiftX, shiftY, 0);
