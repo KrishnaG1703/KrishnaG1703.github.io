@@ -11,6 +11,8 @@ DIST=$(mktemp -d)
 for f in index.html style.css main.js model.js chat.js; do cp "$f" "$DIST"/; done
 cp -R assets "$DIST"/assets
 find "$DIST" -name '.DS_Store' -delete
+# the link-preview tags name GitHub Pages; point this copy's previews at itself
+sed -i.bak 's#https://krishnag1703.github.io/#https://krishnaganga.pages.dev/#g' "$DIST/index.html" && rm "$DIST/index.html.bak"
 npx --yes wrangler@latest pages deploy "$DIST" \
   --project-name krishnaganga --branch master --commit-dirty=true
 rm -rf "$DIST"
